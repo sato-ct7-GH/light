@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>光波の基本知識</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+      background:#edf2f7;color:#1a202c;min-height:100vh;
+    }
+
+    /* ===== ヘッダー ===== */
+    header{
+      background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);
+      color:#fff;padding:14px 18px 12px;text-align:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+    }
+    .hdr-school{font-size:11px;opacity:.75;margin-bottom:4px;letter-spacing:.5px;}
+    .hdr-title{font-size:19px;font-weight:700;letter-spacing:.5px;}
+    .hdr-sub{font-size:12px;opacity:.8;margin-top:4px;min-height:1em;}
+
+    /* ===== セクションタブ ===== */
+    .tabs{
+      background:#1e3a8a;
+    }
+    .tabs-inner{
+      display:flex;max-width:600px;margin:0 auto;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .tabs-inner::-webkit-scrollbar{display:none;}
+    .tab{
+      /* セクションが8個あるため、1行に収めず折り返して全タブを表示する */
+      flex:1 1 0;min-width:0;padding:7px 3px 6px;text-align:center;
+      font-size:10px;line-height:1.25;font-weight:600;color:rgba(255,255,255,.5);
+      cursor:pointer;border-bottom:3px solid transparent;
+      transition:all .2s;user-select:none;
+      white-space:normal;word-break:break-all;
+      display:flex;align-items:center;justify-content:center;
+    }
+    @media (max-width:360px){ .tab{font-size:9px;padding:6px 2px 5px;} }
+    .tab.active{color:#fbbf24;border-bottom-color:#fbbf24;}
+    .tab.disabled{opacity:.3;cursor:not-allowed;}
+
+    /* ===== メイン ===== */
+    .main{max-width:600px;margin:0 auto;padding:14px 13px 70px;}
+
+    /* ===== モード切替 ===== */
+    .mode-row{
+      display:flex;background:#fff;border-radius:10px;
+      overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1);margin-bottom:14px;
+    }
+    .mode-btn{
+      flex:1;padding:11px 6px;border:none;background:#fff;
+      color:#6b7280;font-size:12.5px;font-weight:500;
+      cursor:pointer;font-family:inherit;transition:all .2s;
+    }
+    .mode-btn.active{background:#2563eb;color:#fff;}
+
+    /* ===== 進捗・スコア ===== */
+    .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .prog-bar{flex:1;height:5px;background:#cbd5e1;border-radius:3px;}
+    .prog-fill{height:100%;background:#2563eb;border-radius:3px;transition:width .35s ease;}
+    .prog-text{font-size:12px;color:#64748b;white-space:nowrap;}
+    .score-row{text-align:right;font-size:13px;color:#64748b;margin-bottom:12px;}
+
+    .q-card{
+      background:#fff;border-radius:12px;padding:18px 20px;
+      margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.09);
+      border-left:4px solid #2563eb;
+    }
+    .q-num{font-size:11px;font-weight:700;color:#2563eb;margin-bottom:7px;letter-spacing:.5px;}
+    .q-img{display:block;max-width:100%;width:340px;height:auto;border-radius:8px;margin-bottom:12px;border:1px solid #e2e8f0;background:#fff;}
+    .q-img.half{width:170px;}
+    .q-img.wide{width:100%;}
+    .q-imgs{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;}
+    .q-imgs .q-img{margin-bottom:0;flex:0 1 auto;min-width:0;max-width:calc(50% - 5px);}
+    .q-text{font-size:15px;line-height:1.75;}
+
+    .choices{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+    .choice-btn{
+      width:100%;padding:12px 16px;background:#fff;
+      border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;
+      font-size:14px;text-align:left;color:#374151;
+      transition:all .15s;font-family:inherit;line-height:1.6;
+    }
+    .choice-btn:hover:not(:disabled){border-color:#93c5fd;background:#eff6ff;}
+    .choice-btn.correct{border-color:#34d399;background:#ecfdf5;color:#065f46;font-weight:600;}
+    .choice-btn.wrong{border-color:#f87171;background:#fef2f2;color:#991b1b;}
+    .choice-btn:disabled{cursor:default;}
+
+    .feedback{
+      padding:12px 16px;border-radius:8px;font-size:13px;
+      line-height:1.65;display:none;margin-bottom:12px;
+    }
+    .feedback.ok{display:block;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;}
+    .feedback.ng{display:block;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;}
+    .fb-expl{display:inline-block;margin-top:6px;font-weight:400;color:#78350f;}
+
+    .next-btn{
+      width:100%;padding:13px;background:#2563eb;color:#fff;
+      border:none;border-radius:8px;font-size:15px;font-weight:600;
+      cursor:pointer;font-family:inherit;transition:background .2s;
+    }
+    .next-btn:hover{background:#1e3a8a;}
+
+    /* ===== 初学モード：解答・解説 ===== */
+    .intro-answer{
+      background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;
+      padding:14px 18px;margin-bottom:14px;
+    }
+    .intro-answer-label{font-size:11px;font-weight:700;color:#059669;letter-spacing:.5px;margin-bottom:6px;}
+    .intro-answer-text{font-size:16px;font-weight:700;color:#065f46;margin-bottom:10px;line-height:1.6;}
+    .intro-expl{font-size:13.5px;line-height:1.75;color:#374151;border-top:1px dashed #a7f3d0;padding-top:10px;}
+    .intro-expl-icon{margin-right:4px;}
+
+    /* ===== 結果画面 ===== */
+    .result-card{
+      background:#fff;border-radius:16px;padding:40px 24px;
+      text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    .result-emoji{font-size:56px;margin-bottom:14px;}
+    .result-score{font-size:56px;font-weight:800;color:#2563eb;line-height:1;}
+    .result-total{font-size:17px;color:#64748b;margin-bottom:6px;}
+    .result-pct{font-size:28px;font-weight:700;color:#374151;margin-bottom:28px;}
+    .retry-btn{
+      padding:12px 36px;background:#2563eb;color:#fff;border:none;
+      border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+    }
+    .retry-btn:hover{background:#1e3a8a;}
+    .result-actions{display:flex;flex-direction:column;gap:10px;}
+
+    /* ===== 送信モード ===== */
+    .name-card{
+      background:#fff;border-radius:12px;padding:16px 20px;
+      margin-bottom:13px;box-shadow:0 1px 4px rgba(0,0,0,.08);
+    }
+    .name-label{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;display:block;}
+    .name-input{
+      width:100%;padding:10px 14px;border:2px solid #e2e8f0;
+      border-radius:8px;font-size:15px;font-family:inherit;
+      outline:none;color:#1a202c;transition:border-color .2s;
+    }
+    .name-input:focus{border-color:#2563eb;}
+
+    .sub-result{
+      padding:16px;border-radius:10px;text-align:center;
+      margin-bottom:16px;font-size:14px;line-height:1.8;
+    }
+    .sub-result.ok{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;}
+    .sub-result.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;}
+
+    .sm-explanation{
+      display:flex;gap:10px;align-items:flex-start;
+      background:#fffbeb;border:1px solid #fcd34d;
+      border-radius:8px;padding:12px 14px;
+      font-size:13px;line-height:1.7;color:#78350f;
+      margin-bottom:12px;
+    }
+    .sm-expl-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+    .sm-final-card{
+      background:#fff;border-radius:16px;padding:36px 24px;
+      text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    .sm-final-icon{font-size:52px;margin-bottom:12px;}
+    .sm-final-title{font-size:17px;font-weight:700;color:#1a202c;margin-bottom:6px;}
+    .sm-final-name{font-size:15px;color:#2563eb;font-weight:600;margin-bottom:20px;}
+    .sm-start-btn{
+      width:100%;padding:13px;background:#2563eb;color:#fff;border:none;
+      border-radius:8px;font-size:15px;font-weight:600;
+      cursor:pointer;font-family:inherit;margin-bottom:0;
+      transition:background .2s;
+    }
+    .sm-start-btn:hover{background:#1e3a8a;}
+    .submit-btn{
+      width:100%;padding:14px;background:#059669;color:#fff;border:none;
+      border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;
+      font-family:inherit;margin-bottom:14px;transition:background .2s;
+    }
+    .submit-btn:hover{background:#047857;}
+    .submit-btn:disabled{background:#9ca3af;cursor:not-allowed;}
+
+    /* ===== 完了カード（初学モード） ===== */
+    .done-card{
+      background:#fff;border-radius:16px;padding:40px 24px;
+      text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    .done-icon{font-size:52px;margin-bottom:14px;}
+    .done-title{font-size:18px;font-weight:700;color:#1a202c;margin-bottom:6px;}
+    .done-sub{font-size:13px;color:#64748b;margin-bottom:24px;}
+    .done-actions{display:flex;flex-direction:column;gap:10px;}
+
+    /* ===== 準備中 ===== */
+    .coming-card{
+      background:#fff;border-radius:16px;padding:50px 24px;
+      text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08);color:#6b7280;
+    }
+    .coming-icon{font-size:48px;margin-bottom:14px;}
+    .coming-title{font-size:18px;font-weight:600;color:#374151;margin-bottom:8px;}
+    .coming-text{font-size:14px;}
+
+    /* ===== 学習順/ランダム切替 ===== */
+    .order-row{
+      display:flex;align-items:center;gap:6px;margin-bottom:10px;
+    }
+    .order-label{font-size:12px;color:#64748b;margin-right:2px;white-space:nowrap;}
+    .order-btn{
+      padding:5px 14px;border-radius:20px;border:1.5px solid #cbd5e1;
+      background:#fff;color:#64748b;font-size:12px;font-weight:600;
+      cursor:pointer;font-family:inherit;transition:all .2s;
+    }
+    .order-btn.active{background:#2563eb;border-color:#2563eb;color:#fff;}
+    .order-btn:hover:not(.active){background:#f1f5f9;border-color:#93c5fd;}
+
+    /* KaTeX調整 */
+    .katex{font-size:1em;}
+    .katex-display{margin:.3em 0;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-school">神奈川県立湘南高等学校　物理</div>
+  <div class="hdr-title">🌈 光波の基本知識</div>
+  <div class="hdr-sub" id="hdrSub"></div>
+</header>
+
+<div class="tabs"><div class="tabs-inner" id="tabs"></div></div>
+
+<div class="main">
+  <div class="mode-row">
+    <button class="mode-btn" id="modeIntro"  onclick="setMode('intro')">🔰 初学モード</button>
+    <button class="mode-btn" id="modeStudy"  onclick="setMode('study')">📖 自習モード</button>
+    <button class="mode-btn" id="modeSubmit" onclick="setMode('submit')">📤 送信モード</button>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+// ============================================================
+// データ定義
+// choices[0] が常に正解。自習・送信モードでは表示時にシャッフルする。
+// ============================================================
+const IMG_PHASE    = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NzAgMjA1IiB3aWR0aD0iNDcwIiBoZWlnaHQ9IjIwNSI+PHJlY3Qgd2lkdGg9IjQ3MCIgaGVpZ2h0PSIyMDUiIGZpbGw9IiNmZmZmZmYiLz48ZGVmcz4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSI5IiBtYXJrZXJIZWlnaHQ9IjkiIHJlZlg9IjgiIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDgsMyBMMCw2IFoiIGZpbGw9IiMxZTNhOGEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJMIiBtYXJrZXJXaWR0aD0iOSIgbWFya2VySGVpZ2h0PSI5IiByZWZYPSI4IiByZWZZPSIzIiBvcmllbnQ9ImF1dG8iPgo8cGF0aCBkPSJNMCwwIEw4LDMgTDAsNiBaIiBmaWxsPSIjZjU5ZTBiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImRvdFMiIG1hcmtlcldpZHRoPSI4IiBtYXJrZXJIZWlnaHQ9IjgiIHJlZlg9IjciIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDcsMyBMMCw2IFoiIGZpbGw9IiM2NDc0OGIiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZG90RSIgbWFya2VyV2lkdGg9IjgiIG1hcmtlckhlaWdodD0iOCIgcmVmWD0iMSIgcmVmWT0iMyIgb3JpZW50PSJhdXRvIj4KPHBhdGggZD0iTTcsMCBMMCwzIEw3LDYgWiIgZmlsbD0iIzY0NzQ4YiIvPjwvbWFya2VyPgo8L2RlZnM+CjxzdHlsZT4KdGV4dHtmb250LWZhbWlseTonSGlyYWdpbm8gS2FrdSBHb3RoaWMgUHJvTicsJ1l1IEdvdGhpYycsJ05vdG8gU2FucyBKUCcsc2Fucy1zZXJpZjtmaWxsOiMxYTIwMmN9Ci5sYWJ7Zm9udC1zaXplOjE1cHh9Ci5zbXtmb250LXNpemU6MTNweDtmaWxsOiM0NzU1Njl9Ci5pdHtmb250LXNpemU6MTZweDtmb250LXN0eWxlOml0YWxpYztmb250LXdlaWdodDo3MDA7ZmlsbDojMWUzYThhfQoucmF5e3N0cm9rZTojZjU5ZTBiO3N0cm9rZS13aWR0aDoyLjQ7ZmlsbDpub25lfQouZGlte3N0cm9rZTojNjQ3NDhiO3N0cm9rZS13aWR0aDoxLjN9Ci5nbHtmaWxsOiNkYmVhZmU7c3Ryb2tlOiMxZTNhOGE7c3Ryb2tlLXdpZHRoOjEuNn0KLnBse2ZpbGw6IzMzNDE1NX0KLmRhc2h7c3Ryb2tlOiM5NGEzYjg7c3Ryb2tlLXdpZHRoOjEuMjtzdHJva2UtZGFzaGFycmF5OjUgNDtmaWxsOm5vbmV9Cjwvc3R5bGU+Cjx0ZXh0IGNsYXNzPSJsYWIiIHg9IjUyIiB5PSIyNiI+JiM5Mzk4OzwvdGV4dD4KPHJlY3QgY2xhc3M9ImdsIiB4PSIyNiIgeT0iMTE4IiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjU2Ii8+CjxsaW5lIHgxPSIyNiIgeTE9IjExOCIgeDI9IjIxNiIgeTI9IjExOCIgc3Ryb2tlPSIjMWUzYThhIiBzdHJva2Utd2lkdGg9IjIuNCIvPgo8dGV4dCBjbGFzcz0ic20iIHg9IjM0IiB5PSI2MCI+5bGI5oqY546HIOWwjzwvdGV4dD4KPHRleHQgY2xhc3M9InNtIiB4PSIzNCIgeT0iMTUwIj7lsYjmipjnjocg5aSnPC90ZXh0Pgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNNjAsNjYgTDExNCwxMTgiIG1hcmtlci1lbmQ9InVybCgjYXJMKSIvPgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNMTE4LDExOCBMMTcyLDY4IiBtYXJrZXItZW5kPSJ1cmwoI2FyTCkiLz4KPHRleHQgY2xhc3M9InNtIiB4PSI1MiIgeT0iMTk2Ij7lsI8gJiM4NTk0OyDlpKcg44Gu5aKD55WM44Gn44Gu5Y+N5bCEPC90ZXh0PgoKPGxpbmUgY2xhc3M9ImRhc2giIHgxPSIyMzYiIHkxPSIxNiIgeDI9IjIzNiIgeTI9IjE5MCIvPgoKPHRleHQgY2xhc3M9ImxhYiIgeD0iMjc4IiB5PSIyNiI+JiM5Mzk5OzwvdGV4dD4KPHJlY3QgY2xhc3M9ImdsIiB4PSIyNTIiIHk9IjYyIiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjU2Ii8+CjxsaW5lIHgxPSIyNTIiIHkxPSIxMTgiIHgyPSI0NDIiIHkyPSIxMTgiIHN0cm9rZT0iIzFlM2E4YSIgc3Ryb2tlLXdpZHRoPSIyLjQiLz4KPHRleHQgY2xhc3M9InNtIiB4PSIyNjAiIHk9Ijk0Ij7lsYjmipjnjocg5aSnPC90ZXh0Pgo8dGV4dCBjbGFzcz0ic20iIHg9IjI2MCIgeT0iMTUyIj7lsYjmipjnjocg5bCPPC90ZXh0Pgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNMjg2LDY2IEwzNDAsMTE4IiBtYXJrZXItZW5kPSJ1cmwoI2FyTCkiLz4KPHBhdGggY2xhc3M9InJheSIgZD0iTTM0NCwxMTggTDM5OCw2OCIgbWFya2VyLWVuZD0idXJsKCNhckwpIi8+Cjx0ZXh0IGNsYXNzPSJzbSIgeD0iMjc4IiB5PSIxOTYiPuWkpyAmIzg1OTQ7IOWwjyDjga7looPnlYzjgafjga7lj43lsIQ8L3RleHQ+Cjwvc3ZnPg==';
+const IMG_YOUNG    = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NzAgMjc1IiB3aWR0aD0iNDcwIiBoZWlnaHQ9IjI3NSI+PHJlY3Qgd2lkdGg9IjQ3MCIgaGVpZ2h0PSIyNzUiIGZpbGw9IiNmZmZmZmYiLz48ZGVmcz4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSI5IiBtYXJrZXJIZWlnaHQ9IjkiIHJlZlg9IjgiIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDgsMyBMMCw2IFoiIGZpbGw9IiMxZTNhOGEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJMIiBtYXJrZXJXaWR0aD0iOSIgbWFya2VySGVpZ2h0PSI5IiByZWZYPSI4IiByZWZZPSIzIiBvcmllbnQ9ImF1dG8iPgo8cGF0aCBkPSJNMCwwIEw4LDMgTDAsNiBaIiBmaWxsPSIjZjU5ZTBiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImRvdFMiIG1hcmtlcldpZHRoPSI4IiBtYXJrZXJIZWlnaHQ9IjgiIHJlZlg9IjciIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDcsMyBMMCw2IFoiIGZpbGw9IiM2NDc0OGIiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZG90RSIgbWFya2VyV2lkdGg9IjgiIG1hcmtlckhlaWdodD0iOCIgcmVmWD0iMSIgcmVmWT0iMyIgb3JpZW50PSJhdXRvIj4KPHBhdGggZD0iTTcsMCBMMCwzIEw3LDYgWiIgZmlsbD0iIzY0NzQ4YiIvPjwvbWFya2VyPgo8L2RlZnM+CjxzdHlsZT4KdGV4dHtmb250LWZhbWlseTonSGlyYWdpbm8gS2FrdSBHb3RoaWMgUHJvTicsJ1l1IEdvdGhpYycsJ05vdG8gU2FucyBKUCcsc2Fucy1zZXJpZjtmaWxsOiMxYTIwMmN9Ci5sYWJ7Zm9udC1zaXplOjE1cHh9Ci5zbXtmb250LXNpemU6MTNweDtmaWxsOiM0NzU1Njl9Ci5pdHtmb250LXNpemU6MTZweDtmb250LXN0eWxlOml0YWxpYztmb250LXdlaWdodDo3MDA7ZmlsbDojMWUzYThhfQoucmF5e3N0cm9rZTojZjU5ZTBiO3N0cm9rZS13aWR0aDoyLjQ7ZmlsbDpub25lfQouZGlte3N0cm9rZTojNjQ3NDhiO3N0cm9rZS13aWR0aDoxLjN9Ci5nbHtmaWxsOiNkYmVhZmU7c3Ryb2tlOiMxZTNhOGE7c3Ryb2tlLXdpZHRoOjEuNn0KLnBse2ZpbGw6IzMzNDE1NX0KLmRhc2h7c3Ryb2tlOiM5NGEzYjg7c3Ryb2tlLXdpZHRoOjEuMjtzdHJva2UtZGFzaGFycmF5OjUgNDtmaWxsOm5vbmV9Cjwvc3R5bGU+CjxjaXJjbGUgY3g9IjI2IiBjeT0iMTMyIiByPSI5IiBmaWxsPSIjZjU5ZTBiIi8+Cjx0ZXh0IGNsYXNzPSJzbSIgeD0iMTAiIHk9IjE1OCI+5YWJ5rqQPC90ZXh0PgoKPHJlY3QgY2xhc3M9InBsIiB4PSI3NiIgeT0iMzAiIHdpZHRoPSI3IiBoZWlnaHQ9IjkyIi8+CjxyZWN0IGNsYXNzPSJwbCIgeD0iNzYiIHk9IjE0MiIgd2lkdGg9IjciIGhlaWdodD0iOTIiLz4KPHRleHQgY2xhc3M9ImxhYiIgeD0iNjAiIHk9IjI1MiI+UzwvdGV4dD48dGV4dCBjbGFzcz0ic20iIHg9IjcyIiB5PSIyNTYiPjA8L3RleHQ+Cgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNMzgsMTMyIEw3NCwxMzIiLz4KPHBhdGggY2xhc3M9InJheSIgZD0iTTg1LDEzMiBMMTY4LDEwNCIvPgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNODUsMTMyIEwxNjgsMTY2Ii8+Cgo8cmVjdCBjbGFzcz0icGwiIHg9IjE3MCIgeT0iMjAiIHdpZHRoPSI3IiBoZWlnaHQ9Ijc2Ii8+CjxyZWN0IGNsYXNzPSJwbCIgeD0iMTcwIiB5PSIxMTIiIHdpZHRoPSI3IiBoZWlnaHQ9IjQ2Ii8+CjxyZWN0IGNsYXNzPSJwbCIgeD0iMTcwIiB5PSIxNzQiIHdpZHRoPSI3IiBoZWlnaHQ9IjgwIi8+Cjx0ZXh0IGNsYXNzPSJsYWIiIHg9IjE0NiIgeT0iMTEwIj5TPC90ZXh0Pjx0ZXh0IGNsYXNzPSJzbSIgeD0iMTU4IiB5PSIxMTQiPjI8L3RleHQ+Cjx0ZXh0IGNsYXNzPSJsYWIiIHg9IjE0NiIgeT0iMTgwIj5TPC90ZXh0Pjx0ZXh0IGNsYXNzPSJzbSIgeD0iMTU4IiB5PSIxODQiPjE8L3RleHQ+Cgo8bGluZSBjbGFzcz0iZGltIiB4MT0iMTk5IiB5MT0iMTA0IiB4Mj0iMTk5IiB5Mj0iMTY2IiBtYXJrZXItc3RhcnQ9InVybCgjZG90RSkiIG1hcmtlci1lbmQ9InVybCgjZG90UykiLz4KPHRleHQgY2xhc3M9Iml0IiB4PSIyMDUiIHk9IjE0MCI+ZDwvdGV4dD4KCjxwYXRoIGNsYXNzPSJyYXkiIGQ9Ik0xNzksMTA0IEw0MDYsNzQiLz4KPHBhdGggY2xhc3M9InJheSIgZD0iTTE3OSwxNjYgTDQwNiw3NCIvPgo8cGF0aCBjbGFzcz0iZGFzaCIgZD0iTTE3NywxMzUgTDQwNiwxMzUiLz4KPHBhdGggY2xhc3M9ImRhc2giIGQ9Ik0xNzcsMTM1IEw0MDYsNzQiLz4KPHBhdGggZD0iTTIzNywxMzUgQSA2MCA2MCAwIDAgMCAyMzUsMTIwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxZTNhOGEiIHN0cm9rZS13aWR0aD0iMS44Ii8+Cjx0ZXh0IGNsYXNzPSJpdCIgeD0iMjQzIiB5PSIxMzIiPiYjOTUyOzwvdGV4dD4KPGNpcmNsZSBjeD0iMTc3IiBjeT0iMTM1IiByPSI0IiBmaWxsPSIjMWUzYThhIi8+Cjx0ZXh0IGNsYXNzPSJsYWIiIHg9IjE2MyIgeT0iMTUwIj5PPC90ZXh0PgoKPHJlY3QgeD0iNDA4IiB5PSIxOCIgd2lkdGg9IjgiIGhlaWdodD0iMjM4IiBmaWxsPSIjY2JkNWUxIiBzdHJva2U9IiM2NDc0OGIiIHN0cm9rZS13aWR0aD0iMS40Ii8+Cjx0ZXh0IGNsYXNzPSJzbSIgeD0iMzgyIiB5PSIyNzIiPuOCueOCr+ODquODvOODszwvdGV4dD4KCjxjaXJjbGUgY3g9IjQwOCIgY3k9IjEzNSIgcj0iNCIgZmlsbD0iIzFlM2E4YSIvPgo8dGV4dCBjbGFzcz0ibGFiIiB4PSI0MjQiIHk9IjE0MCI+5Lit5aSuPC90ZXh0Pgo8Y2lyY2xlIGN4PSI0MDgiIGN5PSI3NCIgcj0iNCIgZmlsbD0iI2RjMjYyNiIvPgo8dGV4dCBjbGFzcz0ibGFiIiB4PSI0MjQiIHk9Ijc5Ij5QPC90ZXh0Pgo8bGluZSBjbGFzcz0iZGltIiB4MT0iNDUyIiB5MT0iMTM1IiB4Mj0iNDUyIiB5Mj0iNzYiIG1hcmtlci1zdGFydD0idXJsKCNkb3RFKSIgbWFya2VyLWVuZD0idXJsKCNkb3RTKSIvPgo8dGV4dCBjbGFzcz0iaXQiIHg9IjQ1OCIgeT0iMTEwIj54PC90ZXh0PgoKPGxpbmUgY2xhc3M9ImRpbSIgeDE9IjE3NyIgeTE9IjI2NCIgeDI9IjQwNiIgeTI9IjI2NCIgbWFya2VyLXN0YXJ0PSJ1cmwoI2RvdEUpIiBtYXJrZXItZW5kPSJ1cmwoI2RvdFMpIi8+Cjx0ZXh0IGNsYXNzPSJpdCIgeD0iMjg0IiB5PSIyNTkiPkw8L3RleHQ+Cjwvc3ZnPg==';
+const IMG_GRATING  = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NzAgMzAwIiB3aWR0aD0iNDcwIiBoZWlnaHQ9IjMwMCI+PHJlY3Qgd2lkdGg9IjQ3MCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmZmZmZmYiLz48ZGVmcz4KPG1hcmtlciBpZD0iYXIiIG1hcmtlcldpZHRoPSI5IiBtYXJrZXJIZWlnaHQ9IjkiIHJlZlg9IjgiIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDgsMyBMMCw2IFoiIGZpbGw9IiMxZTNhOGEiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iYXJMIiBtYXJrZXJXaWR0aD0iOSIgbWFya2VySGVpZ2h0PSI5IiByZWZYPSI4IiByZWZZPSIzIiBvcmllbnQ9ImF1dG8iPgo8cGF0aCBkPSJNMCwwIEw4LDMgTDAsNiBaIiBmaWxsPSIjZjU5ZTBiIi8+PC9tYXJrZXI+CjxtYXJrZXIgaWQ9ImRvdFMiIG1hcmtlcldpZHRoPSI4IiBtYXJrZXJIZWlnaHQ9IjgiIHJlZlg9IjciIHJlZlk9IjMiIG9yaWVudD0iYXV0byI+CjxwYXRoIGQ9Ik0wLDAgTDcsMyBMMCw2IFoiIGZpbGw9IiM2NDc0OGIiLz48L21hcmtlcj4KPG1hcmtlciBpZD0iZG90RSIgbWFya2VyV2lkdGg9IjgiIG1hcmtlckhlaWdodD0iOCIgcmVmWD0iMSIgcmVmWT0iMyIgb3JpZW50PSJhdXRvIj4KPHBhdGggZD0iTTcsMCBMMCwzIEw3LDYgWiIgZmlsbD0iIzY0NzQ4YiIvPjwvbWFya2VyPgo8L2RlZnM+CjxzdHlsZT4KdGV4dHtmb250LWZhbWlseTonSGlyYWdpbm8gS2FrdSBHb3RoaWMgUHJvTicsJ1l1IEdvdGhpYycsJ05vdG8gU2FucyBKUCcsc2Fucy1zZXJpZjtmaWxsOiMxYTIwMmN9Ci5sYWJ7Zm9udC1zaXplOjE1cHh9Ci5zbXtmb250LXNpemU6MTNweDtmaWxsOiM0NzU1Njl9Ci5pdHtmb250LXNpemU6MTZweDtmb250LXN0eWxlOml0YWxpYztmb250LXdlaWdodDo3MDA7ZmlsbDojMWUzYThhfQoucmF5e3N0cm9rZTojZjU5ZTBiO3N0cm9rZS13aWR0aDoyLjQ7ZmlsbDpub25lfQouZGlte3N0cm9rZTojNjQ3NDhiO3N0cm9rZS13aWR0aDoxLjN9Ci5nbHtmaWxsOiNkYmVhZmU7c3Ryb2tlOiMxZTNhOGE7c3Ryb2tlLXdpZHRoOjEuNn0KLnBse2ZpbGw6IzMzNDE1NX0KLmRhc2h7c3Ryb2tlOiM5NGEzYjg7c3Ryb2tlLXdpZHRoOjEuMjtzdHJva2UtZGFzaGFycmF5OjUgNDtmaWxsOm5vbmV9Cjwvc3R5bGU+Cjx0ZXh0IGNsYXNzPSJzbSIgeD0iMTYiIHk9IjMwIj7lubPooYzlhYnnt5o8L3RleHQ+CjxwYXRoIGNsYXNzPSJyYXkiIGQ9Ik0xOCw4MCBMMTQ2LDgwIi8+CjxwYXRoIGNsYXNzPSJyYXkiIGQ9Ik0xOCwxNDAgTDE0NiwxNDAiLz4KPHBhdGggY2xhc3M9InJheSIgZD0iTTE4LDIwMCBMMTQ2LDIwMCIvPgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNMTgsMjYwIEwxNDYsMjYwIi8+Cgo8cmVjdCB4PSIxNTAiIHk9IjQwIiB3aWR0aD0iOSIgaGVpZ2h0PSIyNDAiIGZpbGw9IiNjYmQ1ZTEiIHN0cm9rZT0iIzY0NzQ4YiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz4KPGcgZmlsbD0iIzMzNDE1NSI+CjxyZWN0IHg9IjE1MCIgeT0iNTciIHdpZHRoPSI5IiBoZWlnaHQ9IjciLz48cmVjdCB4PSIxNTAiIHk9IjExNyIgd2lkdGg9IjkiIGhlaWdodD0iNyIvPgo8cmVjdCB4PSIxNTAiIHk9IjE3NyIgd2lkdGg9IjkiIGhlaWdodD0iNyIvPjxyZWN0IHg9IjE1MCIgeT0iMjM3IiB3aWR0aD0iOSIgaGVpZ2h0PSI3Ii8+CjwvZz4KPHRleHQgY2xhc3M9InNtIiB4PSIxMTIiIHk9IjI5NiI+5Zue5oqY5qC85a2QPC90ZXh0PgoKPGxpbmUgY2xhc3M9ImRpbSIgeDE9IjEzOCIgeTE9IjE4MCIgeDI9IjEzOCIgeTI9IjI0MCIgbWFya2VyLXN0YXJ0PSJ1cmwoI2RvdEUpIiBtYXJrZXItZW5kPSJ1cmwoI2RvdFMpIi8+Cjx0ZXh0IGNsYXNzPSJpdCIgeD0iMTIwIiB5PSIyMTUiPmQ8L3RleHQ+Cgo8cGF0aCBjbGFzcz0iZGFzaCIgZD0iTTE1OSwyNDAgTDQzNiwyNDAiLz4KPHBhdGggY2xhc3M9InJheSIgZD0iTTE1OSwxODAgTDQzNiw2OCIvPgo8cGF0aCBjbGFzcz0icmF5IiBkPSJNMTU5LDI0MCBMNDM2LDEyOCIvPgo8cGF0aCBkPSJNMjI5LDI0MCBBIDcwIDcwIDAgMCAwIDIyNCwyMTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFlM2E4YSIgc3Ryb2tlLXdpZHRoPSIxLjgiLz4KPHRleHQgY2xhc3M9Iml0IiB4PSIyMzQiIHk9IjIyOCI+JiM5NTI7PC90ZXh0PgoKPHBhdGggY2xhc3M9ImRpbSIgZD0iTTE1OSwxODAgTDE4MCwyMzIiIHN0cm9rZT0iI2RjMjYyNiIgc3Ryb2tlLWRhc2hhcnJheT0iNCAzIi8+CjxsaW5lIHgxPSIxNTkiIHkxPSIyNDAiIHgyPSIxODAiIHkyPSIyMzIiIHN0cm9rZT0iI2RjMjYyNiIgc3Ryb2tlLXdpZHRoPSI0Ii8+Cjx0ZXh0IGNsYXNzPSJzbSIgeD0iMTg2IiB5PSIyNzYiIGZpbGw9IiNkYzI2MjYiPue1jOi3r+W3rjwvdGV4dD4KPHBhdGggY2xhc3M9ImRpbSIgZD0iTTE5NiwyNjggTDE4MCwyNDAiIHN0cm9rZT0iI2RjMjYyNiIgc3Ryb2tlLWRhc2hhcnJheT0iMyAzIi8+Cjwvc3ZnPg==';
+const IMG_THINFILM = 'data:image/png;base64,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';
+const IMG_WEDGE     = 'data:image/png;base64,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';
+const IMG_WEDGE_X   = 'data:image/png;base64,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';
+const IMG_WEDGE_TOP = 'data:image/png;base64,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';
+const IMG_NEWTON     = 'data:image/png;base64,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';
+const IMG_NEWTON_TOP = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAS4AAAFZCAMAAAARuTIIAAABgFBMVEX///////7//v7//fz+/f3//Pv++/n++vj++fb6+vr++PX+9/P+9vH+9O799vL99O/98+719fX98uz98ev98On87+j87ub87eX87OT86+L86uDx7ev86d/86d746eH86N3759z75tv75dn75Nj749b74tX64tX64dT64NL639H63s/63c763Mz628vw4Nf528vg4ODd3d352sn52cj52Mf518X51sT51cL41MH407/40r740bz40Lv4z7n4zbf3z7n3zbb3zLXR0dH3y7T3yrP3yrL3yrH2yrL3ybH3yK/3x672xq32xav2xKn2w6j2wqf1wab2wKT1v6P1vqH1vaD1vJ71u5z1uZr0u5z0uZr0uJj0t5f0tpX0tZT0tJLztZTzs5HIyMjDw8O6urrzso/zsY7zsI3zr4vzroryroryrYjyrIfyq4XyqoXyqoStra2np6elpaWWlpaJiYl/f39zc3NqampiYmJUVFRHR0c/Pz8wMDAjIyMXFxcKCgoAAACQ4uJHAABJhElEQVR42u1dCVcaS9PmalyiJhpXRHNUXFDAY1DABYki+l4QQQQhoLjEPUAmRtSIovz1r6u7Z6UHwSUm97PPCRKFmZ7qqqeequpFo3ltr+21vbbX9tpe22t7ba/ttb221/banrVdZVT+cGpR+YMl0/WUHVg4+4uktZDPsv+wl79S+Uomr/KAt/l8LnuVOd1T3uMmr2iXEoFf5lnXOrvNM1rmZWTE7At6Cpm4VOSoyeYX6LsuuZ7tZc6zRDI35/uyLxS0M+lfpZdY4EeR3V5EXBaVzlyVJK58TlTNm0K7XDi9BJmdSgWyp9RPiZrc3uzt7Z1mMpdE1AuKu1vOxFu8kLikCKVmWari2s9f7Z1lMvtd2JDOJd+QjMfpuaUEce0rhiuXzWYkdz8HkZ/xt8gsvKS4Mlnccvkb8uZq4V5xLSANQF+g7RY9TFdOlMSZUigScV1mZC1LxbVwlUUqlUW/2d/bsxTc/SaPftd1m7eQcc28oLhu8md7snZ723WfuHgMQg/XZTm9BfHsiZaZzVtUxVUEs0/z+2q6fYrBNEPU6yr/ktpVcGelxezlb0RZUhPbQ0jclb/hgSuHv8aD1G1OU652QTtnSpkMFlYsS/4WvArc7SXF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';
+
+const SECTIONS = [
+  {
+    id: 1,
+    label: "光波の基本",
+    subtitle: "光の性質・屈折・偏光",
+    available: true,
+    questions: [
+      { id: 101, text: "人間の目に感じる光を何というか。",
+        choices: ["可視光線","白色光","単色光","チェレンコフ光"] },
+      { id: 102, text: "太陽光のようにいろいろな波長の光を含む光を何というか。",
+        choices: ["白色光","可視光線","単色光","チェレンコフ光"] },
+      { id: 103, text: "1つの波長からなる光を何というか。",
+        choices: ["単色光","可視光線","白色光","チェレンコフ光"] },
+      { id: 104, text: "真空中の光の速さはいくらか。",
+        choices: ["\\(3.0\\times10^{8}\\,\\mathrm{m/s}\\)","\\(10\\times10^{10}\\,\\mathrm{m/s}\\)","\\(3.0\\times10^{10}\\,\\mathrm{m/s}\\)","\\(1.0\\times10^{8}\\,\\mathrm{m/s}\\)"] },
+      { id: 105, text: "絶対屈折率 \\(n\\) の媒質中の光速はいくらか。真空中の速さを \\(c\\) とする。",
+        choices: ["\\(\\dfrac{c}{n}\\)","\\(nc\\)","\\(c\\)"] },
+      { id: 106, text: "絶対屈折率 \\(n\\)、長さ \\(L\\) の媒質の<strong>光路長（光学距離）</strong>はいくらか。",
+        choices: ["\\(nL\\)","\\(\\dfrac{L}{n}\\)","\\(L\\)"] },
+      { id: 107, text: "絶対屈折率 \\(n_1\\) の媒質に対する、絶対屈折率 \\(n_2\\) の媒質の相対屈折率 \\(n_{12}\\) はどれか。",
+        choices: ["\\(n_{12}=\\dfrac{n_2}{n_1}\\)","\\(n_{12}=\\dfrac{n_1}{n_2}\\)"] },
+      { id: 108, text: "絶対屈折率 \\(n\\) の媒質中の波長はいくらか。真空中の波長を \\(\\lambda\\) とする。",
+        choices: ["\\(\\dfrac{\\lambda}{n}\\)","\\(n\\lambda\\)","\\(\\lambda\\)"] },
+      { id: 109, text: "絶対屈折率 \\(n\\) の媒質中の振動数はいくらか。真空中の振動数を \\(f\\) とする。",
+        choices: ["\\(f\\)","\\(nf\\)","\\(\\dfrac{f}{n}\\)"] },
+      { id: 110, text: "媒質1から媒質2へ光が進むとき、入射角を大きくしていくと、ある角度以上で光が媒質2へ進めなくなった。この現象と、そのときの角度を何というか。",
+        choices: ["全反射，臨界角","全反射，全反射角","絶対反射，臨界角"] },
+      { id: 111, text: "全反射が起こるのはどのような場合か。",
+        choices: ["屈折率が大きい媒質から小さい媒質へ進むとき","屈折率が小さい媒質から大きい媒質へ進むとき","屈折率の大小によらず起きる"] },
+      { id: 112, text: "絶対屈折率 \\(n\\) の媒質から空気中へ光が進む場合の臨界角 \\(\\theta_0\\) と \\(n\\) の関係はどれか。",
+        choices: ["\\(\\sin\\theta_0=\\dfrac{1}{n}\\)","\\(\\sin\\theta_0=n\\)","\\(\\cos\\theta_0=n\\)","\\(\\cos\\theta_0=\\dfrac{1}{n}\\)"] },
+      { id: 113, text: "橙・藍・緑の可視光線を、波長の長い順に並べよ。",
+        choices: ["（長）橙・緑・藍（短）","（長）橙・藍・緑（短）","（長）藍・橙・緑（短）","（長）緑・橙・藍（短）"] },
+      { id: 114, text: "太陽光の連続スペクトルに含まれる多くの暗線を何というか。",
+        choices: ["フラウンホーファー線","輝線スペクトル","宇宙線","放射線"] },
+      { id: 115, text: "空が青く見えたり、夕焼けで赤く見えたりすることを説明する光の進み方は何か。",
+        choices: ["散乱","回折","直進","反射"] },
+      { id: 116, text: "光波は縦波か横波か。",
+        choices: ["横波","縦波"] },
+      { id: 117, text: "いろいろな振動方向が混ざった光を何というか。",
+        choices: ["自然光","可視光線","偏光","太陽光"] },
+      { id: 118, text: "特定の方向のみに振動する光を何というか。",
+        choices: ["偏光","単色光","自然光","可視光線"] },
+      { id: 119, text: "屈折率が<strong>大きい媒質から小さい媒質</strong>へ向かう境界での反射は、固定端反射か自由端反射か。",
+        choices: ["自由端反射","固定端反射"] },
+      { id: 120, text: "屈折率が<strong>大きい媒質から小さい媒質</strong>へ向かう境界での反射で、位相はずれるか。",
+        choices: ["ずれない","\\(\\pi\\) ずれる"] },
+      { id: 121, text: "屈折率が<strong>小さい媒質から大きい媒質</strong>へ向かう境界での反射は、固定端反射か自由端反射か。",
+        choices: ["固定端反射","自由端反射"] },
+      { id: 122, text: "屈折率が<strong>小さい媒質から大きい媒質</strong>へ向かう境界での反射で、位相はずれるか。",
+        choices: ["\\(\\pi\\) ずれる","ずれない"] }
+    ]
+  },
+  {
+    id: 2,
+    label: "干渉の基本",
+    subtitle: "干渉の条件と光路差",
+    available: true,
+    questions: [
+      { id: 1, text: "2つの光を重ねたとき、時間的に安定した干渉縞が観測されるための条件はどれか。",
+        choices: [
+          "振動数が等しく、位相の関係がつねに一定に保たれていること",
+          "2つの光の明るさ（振幅）が完全に等しいこと",
+          "2つの光が同じ向きに進んでいること",
+          "2つの光がどちらも単色光であればよい"
+        ] },
+      { id: 2, text: "同位相で出発した2つの光が、点Pで<strong>強め合う</strong>条件はどれか。空気中の経路差を \\(\\Delta\\)、波長を \\(\\lambda\\)、\\(m=0,1,2,\\cdots\\) とする。",
+        choices: [
+          "\\(\\Delta = m\\lambda\\)",
+          "\\(\\Delta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\Delta = \\dfrac{m\\lambda}{2}\\)",
+          "\\(\\Delta = (2m+1)\\lambda\\)"
+        ] },
+      { id: 3, text: "同位相で出発した2つの光が、点Pで<strong>弱め合う</strong>条件はどれか。",
+        choices: [
+          "\\(\\Delta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\Delta = m\\lambda\\)",
+          "\\(\\Delta = 2m\\lambda\\)",
+          "\\(\\Delta = \\dfrac{\\lambda}{m}\\)"
+        ] },
+      { id: 4, text: "真空中の波長 \\(\\lambda\\) の光が、屈折率 \\(n\\) の媒質中を進むときの変化として正しいものはどれか。",
+        choices: [
+          "波長は \\(\\dfrac{\\lambda}{n}\\)、速さは \\(\\dfrac{c}{n}\\) になり、振動数は変わらない",
+          "波長・速さ・振動数のすべてが \\(\\dfrac{1}{n}\\) 倍になる",
+          "振動数が \\(\\dfrac{1}{n}\\) 倍になり、波長は変わらない",
+          "速さだけが \\(\\dfrac{1}{n}\\) 倍になり、波長は変わらない"
+        ] },
+      { id: 5, text: "屈折率 \\(n\\) の媒質中を距離 \\(l\\) 進んだときの<strong>光路長（光学距離）</strong>はどれか。",
+        choices: [ "\\(nl\\)", "\\(\\dfrac{l}{n}\\)", "\\(n^{2}l\\)", "\\(\\dfrac{n}{l}\\)" ] },
+      { id: 6, text: "図の <strong>Ⓐ</strong>（屈折率の小さい媒質から大きい媒質へ向かう境界での反射）では、反射光の位相はどうなるか。",
+        image: IMG_PHASE,
+        choices: [
+          "位相が \\(\\pi\\) だけずれる（固定端反射）",
+          "位相は変化しない（自由端反射）",
+          "位相が \\(\\dfrac{\\pi}{2}\\) だけずれる",
+          "屈折率の値によって \\(0\\) から \\(\\pi\\) まで連続的に変わる"
+        ] },
+      { id: 7, text: "図の <strong>Ⓑ</strong>（屈折率の大きい媒質から小さい媒質へ向かう境界での反射）では、反射光の位相はどうなるか。",
+        image: IMG_PHASE,
+        choices: [
+          "位相は変化しない（自由端反射）",
+          "位相が \\(\\pi\\) だけずれる（固定端反射）",
+          "位相が \\(2\\pi\\) だけずれる",
+          "反射そのものが起こらない"
+        ] },
+      { id: 8, text: "光が空気中からガラス中へ進むとき、<strong>変化しない</strong>量はどれか。",
+        choices: [ "振動数", "波長", "速さ", "光路長" ] },
+      { id: 9, text: "光の<strong>回折</strong>を説明したものはどれか。",
+        choices: [
+          "波が障害物やすき間の背後に回り込んで広がる現象",
+          "2つの波が重なって強め合ったり弱め合ったりする現象",
+          "波が媒質の境界で進む向きを変える現象",
+          "波が境界ではね返る現象"
+        ] },
+      { id: 10, text: "スリットの幅と回折の関係として正しいものはどれか。",
+        choices: [
+          "スリットの幅が光の波長に近いほど、回折は著しくなる",
+          "スリットの幅が広いほど、回折は著しくなる",
+          "スリットの幅は回折の程度に関係しない",
+          "スリットの幅が波長の100倍程度のとき最も著しい"
+        ] },
+      { id: 11, text: "干渉のように、重なり合った波の変位が各波の変位の和になることを表す原理はどれか。",
+        choices: [ "重ね合わせの原理", "反射の法則", "屈折の法則", "作用反作用の法則" ] },
+      { id: 12, text: "白色光を用いて干渉させたとき、経路差が \\(0\\) となる中央の位置はどのように見えるか。",
+        choices: [
+          "すべての色が強め合うので白色に見える",
+          "波長の短い紫色だけが強め合うので紫色に見える",
+          "波長の長い赤色だけが強め合うので赤色に見える",
+          "すべての色が打ち消し合うので暗くなる"
+        ] },
+      { id: 13, text: "光が干渉や回折を起こすという事実は、光の何を示しているか。",
+        choices: [ "波動性", "粒子性", "直進性", "光電効果" ] }
+    ]
+  },
+
+  {
+    id: 3,
+    label: "ヤングの実験",
+    subtitle: "経路差の導出と干渉条件",
+    available: true,
+    questions: [
+      { id: 14, text: "図のように、2つのスリット \\(\\mathrm{S_1}\\)、\\(\\mathrm{S_2}\\) を通った単色光が、スクリーン上の位置 \\(x\\) にある点 P で強め合った。スリットの中点 O と P を結ぶ線分が中心線となす角を \\(\\theta\\) とするとき、経路差 \\(|\\mathrm{S_1P}-\\mathrm{S_2P}|\\) をスリット間隔 \\(d\\) と \\(\\theta\\) で近似するとどうなるか。",
+        image: IMG_YOUNG,
+        choices: [
+          "\\(d\\sin\\theta\\)",
+          "\\(d\\cos\\theta\\)",
+          "\\(d\\tan\\theta\\)",
+          "\\(\\dfrac{d}{2}\\sin\\theta\\)"
+        ] },
+      { id: 15, text: "\\(\\theta\\) が微小なときの近似 \\(\\sin\\theta \\fallingdotseq \\tan\\theta\\) を用いる。スリットからスクリーンまでの距離 \\(L\\)、中央から P までの距離 \\(x\\) を用いると、\\(\\tan\\theta\\) はどう表せるか。",
+        image: IMG_YOUNG,
+        choices: [
+          "\\(\\dfrac{x}{L}\\)",
+          "\\(\\dfrac{L}{x}\\)",
+          "\\(\\dfrac{x}{2L}\\)",
+          "\\(\\dfrac{d}{L}\\)"
+        ] },
+      { id: 16, text: "\\(\\sin\\theta \\fallingdotseq \\tan\\theta = \\dfrac{x}{L}\\) を用いると、経路差 \\(|\\mathrm{S_1P}-\\mathrm{S_2P}|\\) はどう表せるか。",
+        choices: [
+          "\\(\\dfrac{dx}{L}\\)",
+          "\\(\\dfrac{dL}{x}\\)",
+          "\\(\\dfrac{x}{dL}\\)",
+          "\\(\\dfrac{dx}{2L}\\)"
+        ] },
+      { id: 17, text: "経路差は三平方の定理を用いても求められる。P から<strong>遠い</strong>側のスリットを \\(\\mathrm{S_1}\\) とするとき、\\(\\mathrm{S_1P}\\) を \\(d\\)、\\(x\\)、\\(L\\) を用いて表すとどうなるか。",
+        image: IMG_YOUNG,
+        choices: [
+          "\\(\\sqrt{L^{2}+\\left(x+\\dfrac{d}{2}\\right)^{2}}\\)",
+          "\\(\\sqrt{L^{2}+\\left(x-\\dfrac{d}{2}\\right)^{2}}\\)",
+          "\\(\\sqrt{L^{2}+x^{2}+d^{2}}\\)",
+          "\\(L+x+\\dfrac{d}{2}\\)"
+        ] },
+      { id: 18, text: "同様に、P に<strong>近い</strong>側のスリット \\(\\mathrm{S_2}\\) について、\\(\\mathrm{S_2P}\\) を \\(d\\)、\\(x\\)、\\(L\\) を用いて表すとどうなるか。",
+        image: IMG_YOUNG,
+        choices: [
+          "\\(\\sqrt{L^{2}+\\left(x-\\dfrac{d}{2}\\right)^{2}}\\)",
+          "\\(\\sqrt{L^{2}+\\left(x+\\dfrac{d}{2}\\right)^{2}}\\)",
+          "\\(\\sqrt{L^{2}+x^{2}-d^{2}}\\)",
+          "\\(L-x+\\dfrac{d}{2}\\)"
+        ] },
+      { id: 19, text: "\\(|\\mathrm{S_1P}-\\mathrm{S_2P}| = \\sqrt{L^{2}+\\left(x+\\dfrac{d}{2}\\right)^{2}}-\\sqrt{L^{2}+\\left(x-\\dfrac{d}{2}\\right)^{2}}\\) である。\\(L\\) に対して \\(x\\)、\\(d\\) が十分に小さいとして、\\(a\\) が十分小さいときの近似 \\((1+a)^{n} \\fallingdotseq 1+na\\) を用いると、経路差はどうなるか。",
+        choices: [
+          "\\(\\dfrac{dx}{L}\\)",
+          "\\(\\dfrac{dx}{2L}\\)",
+          "\\(\\dfrac{d^{2}}{2L}\\)",
+          "\\(\\dfrac{x^{2}}{2L}\\)"
+        ] },
+      { id: 20, text: "\\(|\\mathrm{S_1P}-\\mathrm{S_2P}| = \\dfrac{dx}{L}\\) である。光の波長を \\(\\lambda\\)、整数を \\(m\\) とするとき、点 P で<strong>強め合う</strong>条件はどれか。",
+        choices: [
+          "\\(\\dfrac{dx}{L} = m\\lambda\\)",
+          "\\(\\dfrac{dx}{L} = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\dfrac{dx}{L} = \\dfrac{m\\lambda}{2}\\)",
+          "\\(\\dfrac{dx}{L} = \\dfrac{\\lambda}{m}\\)"
+        ] },
+      { id: 21, text: "\\(|\\mathrm{S_1P}-\\mathrm{S_2P}| = \\dfrac{dx}{L}\\) である。点 P で<strong>弱め合う</strong>条件はどれか。",
+        choices: [
+          "\\(\\dfrac{dx}{L} = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\dfrac{dx}{L} = m\\lambda\\)",
+          "\\(\\dfrac{dx}{L} = 2m\\lambda\\)",
+          "\\(\\dfrac{dx}{L} = \\dfrac{\\lambda}{2m}\\)"
+        ] },
+      { id: 22, text: "\\(\\dfrac{dx}{L} = m\\lambda\\) であるから、隣り合う明るい点（明線）の間隔 \\(\\Delta x\\) はどれか。",
+        choices: [
+          "\\(\\dfrac{L\\lambda}{d}\\)",
+          "\\(\\dfrac{d\\lambda}{L}\\)",
+          "\\(\\dfrac{dL}{\\lambda}\\)",
+          "\\(\\dfrac{2L\\lambda}{d}\\)"
+        ] },
+      { id: 23, text: "ヤングの実験で、スリット間隔 \\(d\\) を2倍にすると、明線の間隔はどうなるか。",
+        choices: [ "\\(\\dfrac{1}{2}\\) 倍になる", "2倍になる", "4倍になる", "変わらない" ] },
+      { id: 24, text: "ヤングの実験で、スクリーンまでの距離 \\(L\\) を2倍にすると、明線の間隔はどうなるか。",
+        choices: [ "2倍になる", "\\(\\dfrac{1}{2}\\) 倍になる", "4倍になる", "変わらない" ] },
+      { id: 25, text: "同じ装置で赤色光と青色光を用いたとき、干渉縞の間隔について正しいものはどれか。",
+        choices: [
+          "波長の長い赤色光の方が縞の間隔は広い",
+          "波長の短い青色光の方が縞の間隔は広い",
+          "色によらず縞の間隔は等しい",
+          "青色光では干渉縞ができない"
+        ] },
+      { id: 26, text: "ヤングの実験で、複スリットの手前に単スリット \\(\\mathrm{S_0}\\) を置く目的はどれか。",
+        image: IMG_YOUNG,
+        choices: [
+          "\\(\\mathrm{S_1}\\)、\\(\\mathrm{S_2}\\) に位相の関係が一定な光を届け、干渉できるようにするため",
+          "光を強めてスクリーンを明るくするため",
+          "光の波長を短くするため",
+          "光を平行光線に変えるため"
+        ] },
+      { id: 27, text: "ヤングの実験で、スクリーン中央 O にできるものはどれか。",
+        choices: [
+          "経路差が \\(0\\) なので明線ができる",
+          "経路差が \\(0\\) なので暗線ができる",
+          "経路差が \\(\\dfrac{\\lambda}{2}\\) なので暗線ができる",
+          "明暗のどちらになるかは波長によって決まる"
+        ] },
+      { id: 28, text: "ヤングの実験の装置全体を、屈折率 \\(n\\) の透明な液体中に入れると干渉縞の間隔はどうなるか。",
+        choices: [ "\\(\\dfrac{1}{n}\\) 倍になる", "\\(n\\) 倍になる", "\\(n^{2}\\) 倍になる", "変わらない" ] },
+      { id: 29, text: "スリット \\(\\mathrm{S_1}\\) の直後だけに、薄い透明な膜を貼りつけた。干渉縞はどうなるか。",
+        choices: [
+          "縞全体が \\(\\mathrm{S_1}\\) 側へ平行移動する",
+          "縞全体が \\(\\mathrm{S_2}\\) 側へ平行移動する",
+          "縞の間隔だけが広がる",
+          "干渉縞は消えてしまう"
+        ] },
+      { id: 30, text: "ヤングの実験で白色光を用いたとき、干渉縞の見え方として正しいものはどれか。",
+        choices: [
+          "中央は白色で、その外側は内側が紫・外側が赤に色づく",
+          "中央は白色で、その外側は内側が赤・外側が紫に色づく",
+          "全体が白色の縞になる",
+          "中央が黒く、外側は白色の縞になる"
+        ] },
+      { id: 31, text: "ヤングの実験で、\\(m\\) 番目の明線の位置 \\(x\\) はどれか。",
+        choices: [ "\\(x = \\dfrac{mL\\lambda}{d}\\)", "\\(x = \\dfrac{md\\lambda}{L}\\)", "\\(x = \\dfrac{mdL}{\\lambda}\\)", "\\(x = \\dfrac{L\\lambda}{md}\\)" ] },
+      { id: 32, text: "ヤングの実験で干渉縞の間隔を広くする方法として、<strong>誤っている</strong>ものはどれか。",
+        choices: [
+          "スリット間隔 \\(d\\) を大きくする",
+          "スクリーンまでの距離 \\(L\\) を大きくする",
+          "より波長の長い光を用いる",
+          "青色光のかわりに赤色光を用いる"
+        ] }
+    ]
+  },
+
+  {
+    id: 4,
+    label: "回折格子",
+    subtitle: "回折格子による分光",
+    available: true,
+    questions: [
+      { id: 33, text: "図のように、格子定数 \\(d\\) の回折格子に光を垂直に当てた。角 \\(\\theta\\) 方向に進む、隣り合うすき間からの光の経路差はどれか。",
+        image: IMG_GRATING,
+        choices: [ "\\(d\\sin\\theta\\)", "\\(d\\cos\\theta\\)", "\\(d\\tan\\theta\\)", "\\(\\dfrac{d}{\\sin\\theta}\\)" ] },
+      { id: 34, text: "回折格子で、角 \\(\\theta\\) 方向に明線ができる条件はどれか。",
+        image: IMG_GRATING,
+        choices: [
+          "\\(d\\sin\\theta = m\\lambda\\)",
+          "\\(d\\sin\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(d\\cos\\theta = m\\lambda\\)",
+          "\\(d\\sin\\theta = \\dfrac{m\\lambda}{2}\\)"
+        ] },
+      { id: 35, text: "1 cm あたり 5000 本のすじが刻まれた回折格子の格子定数はいくらか。",
+        choices: [
+          "\\(2.0\\times10^{-6}\\,\\mathrm{m}\\)",
+          "\\(5.0\\times10^{-6}\\,\\mathrm{m}\\)",
+          "\\(2.0\\times10^{-4}\\,\\mathrm{m}\\)",
+          "\\(5.0\\times10^{3}\\,\\mathrm{m}\\)"
+        ] },
+      { id: 36, text: "格子定数 \\(d\\) が小さい回折格子ほど、同じ次数の明線が現れる角 \\(\\theta\\) はどうなるか。",
+        choices: [ "大きくなる", "小さくなる", "変わらない", "\\(0\\) になる" ] },
+      { id: 37, text: "回折格子による明線が、ヤングの実験に比べて<strong>鋭く明るい</strong>のはなぜか。",
+        choices: [
+          "非常に多くのすき間からの光が重なるため、条件から少しずれるとたがいに打ち消し合うから",
+          "すき間の幅が広く、多くの光を通すから",
+          "回折が起こらないから",
+          "光の波長が短くなるから"
+        ] },
+      { id: 38, text: "回折格子に白色光を当てたとき、中央（\\(m=0\\)）に現れるのはどれか。",
+        choices: [ "白色の明線", "紫色の明線", "赤色の明線", "暗線" ] },
+      { id: 39, text: "回折格子で観測できる明線の次数 \\(m\\) の最大値を決める条件はどれか。",
+        choices: [
+          "\\(\\sin\\theta \\leqq 1\\) より \\(m \\leqq \\dfrac{d}{\\lambda}\\)",
+          "\\(\\sin\\theta \\leqq 1\\) より \\(m \\leqq \\dfrac{\\lambda}{d}\\)",
+          "\\(m\\) に上限はなく、いくらでも大きくできる",
+          "\\(m \\leqq d\\lambda\\)"
+        ] },
+      { id: 40, text: "格子定数 \\(2.0\\times10^{-6}\\,\\mathrm{m}\\) の回折格子に、波長 \\(6.0\\times10^{-7}\\,\\mathrm{m}\\) の光を垂直に当てた。1次の明線について \\(\\sin\\theta\\) はいくらか。",
+        choices: [ "0.30", "0.15", "0.60", "3.3" ] },
+      { id: 41, text: "回折格子に白色光を当てたとき、1次の明線の中で最も外側（中央から遠い側）に現れる色はどれか。",
+        choices: [ "赤", "紫", "緑", "黄" ] },
+      { id: 42, text: "CD や DVD の記録面が、光を当てると虹色に見える理由はどれか。",
+        choices: [
+          "細かい溝が反射型の回折格子としてはたらき、波長ごとに強め合う向きが違うから",
+          "記録面に色のついた塗料が塗ってあるから",
+          "プラスチックが光を屈折させて分散させるから",
+          "記録面が光を吸収して発光するから"
+        ] },
+      { id: 43, text: "回折格子を用いて光の波長を求めるには、何を測定すればよいか。",
+        choices: [
+          "明線が現れる角 \\(\\theta\\) と、その次数 \\(m\\)",
+          "光の強さと明線の本数",
+          "回折格子の厚さと面積",
+          "光源から回折格子までの距離"
+        ] }
+    ]
+  },
+
+  {
+    id: 5,
+    label: "薄膜",
+    subtitle: "シャボン膜・反射防止膜",
+    available: true,
+    questions: [
+      { id: 44, text: "シャボン玉などの薄い膜が色づいて見えるのは、光の干渉によって説明できる。図で、屈折光 a と反射光 b の経路差を考える。ホイヘンスの原理より A と B は同じ波面上にあり、\\(\\mathrm{BD}=\\mathrm{AC}\\) とみなせる。図中の記号 A〜D を用いて単純な経路差を表すとどうなるか。",
+        image: IMG_THINFILM,
+        choices: [
+          "\\(\\mathrm{CE}+\\mathrm{ED}\\)（＝CED）",
+          "\\(\\mathrm{AC}+\\mathrm{CE}+\\mathrm{ED}\\)（＝ACED）",
+          "\\(\\mathrm{ED}\\)",
+          "\\(\\mathrm{AC}+\\mathrm{CD}+\\mathrm{DE}+\\mathrm{BD}\\)"
+        ] },
+      { id: 45, text: "図中の \\(\\angle\\mathrm{HAE}\\) を \\(\\theta\\) とするとき、これと等しい角の組み合わせはどれか。",
+        image: IMG_THINFILM,
+        choices: [
+          "\\(\\angle\\mathrm{GDE}\\) と \\(\\angle\\mathrm{GFE}\\)",
+          "\\(\\angle\\mathrm{DEG}\\) と \\(\\angle\\mathrm{FEG}\\)",
+          "\\(\\angle\\mathrm{AEH}\\) と \\(\\angle\\mathrm{DEG}\\)",
+          "\\(\\angle\\mathrm{ADE}\\) と \\(\\angle\\mathrm{DEF}\\)"
+        ] },
+      { id: 46, text: "\\(\\mathrm{AE}=\\mathrm{DE}\\) であり、\\(\\triangle\\mathrm{DEF}\\) が二等辺三角形であることから、単純な経路差 CED は CEF に等しいとわかる。\\(\\theta\\) と膜の厚さ \\(d\\) を用いて CEF を表すとどうなるか。",
+        image: IMG_THINFILM,
+        choices: [
+          "\\(2d\\cos\\theta\\)",
+          "\\(2d\\sin\\theta\\)",
+          "\\(\\dfrac{2d}{\\cos\\theta}\\)",
+          "\\(2d\\tan\\theta\\)"
+        ] },
+      { id: 47, text: "ここで求めた単純な経路差 \\(2d\\cos\\theta\\) は、実際の干渉を決める光路長の差とは異なる。薄膜の屈折率が \\(n\\) であるとき、<strong>光路長差</strong>はどれか。",
+        image: IMG_THINFILM,
+        choices: [
+          "\\(2nd\\cos\\theta\\)",
+          "\\(\\dfrac{2d\\cos\\theta}{n}\\)",
+          "\\(2n^{2}d\\cos\\theta\\)",
+          "\\(nd\\cos\\theta\\)"
+        ] },
+      { id: 48, text: "空気（屈折率ほぼ 1）、薄膜（屈折率 \\(n\\)）、水（屈折率 \\(n'\\)、\\(n'&lt;n\\)）の関係から、D と E それぞれの反射における位相のずれはどうなるか。",
+        image: IMG_THINFILM,
+        choices: [
+          "D では位相が \\(\\pi\\) ずれ（固定端反射）、E では位相はずれない（自由端反射）",
+          "D では位相はずれず（自由端反射）、E では位相が \\(\\pi\\) ずれる（固定端反射）",
+          "D、E のどちらでも位相が \\(\\pi\\) ずれる",
+          "D、E のどちらでも位相はずれない"
+        ] },
+      { id: 49, text: "光路長差 \\(2nd\\cos\\theta\\) と、D、E での位相のずれを考慮すると、2つの光が<strong>強め合う</strong>条件はどれか。光の波長を \\(\\lambda\\)、整数を \\(m\\) とする。",
+        image: IMG_THINFILM,
+        choices: [
+          "\\(2nd\\cos\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(2nd\\cos\\theta = m\\lambda\\)",
+          "\\(2nd\\cos\\theta = (2m+1)\\lambda\\)",
+          "\\(2d\\cos\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)"
+        ] },
+      { id: 50, text: "空気中の薄膜（垂直入射）で、<strong>反射光が強め合う</strong>条件はどれか。",
+        choices: [
+          "\\(2nd = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(2nd = m\\lambda\\)",
+          "\\(2d = m\\lambda\\)",
+          "\\(nd = m\\lambda\\)"
+        ] },
+      { id: 51, text: "空気中の薄膜（垂直入射）で、<strong>反射光が弱め合う</strong>条件はどれか。",
+        choices: [
+          "\\(2nd = m\\lambda\\)",
+          "\\(2nd = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(2d = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(nd = \\dfrac{\\lambda}{2}\\)"
+        ] },
+      { id: 52, text: "薄膜の干渉で、上面と下面の反射のうち一方だけ位相が \\(\\pi\\) ずれることによって、干渉条件はどうなるか。",
+        choices: [
+          "光路差が \\(\\dfrac{\\lambda}{2}\\) ずれたのと同じになり、強め合いと弱め合いの条件が入れかわる",
+          "光路差が \\(\\lambda\\) ずれたのと同じになり、条件は変わらない",
+          "干渉が起こらなくなる",
+          "光路差の値が2倍になる"
+        ] },
+      { id: 53, text: "シャボン玉の表面が色づいて見える理由はどれか。",
+        choices: [
+          "膜の厚さが場所によって異なり、場所ごとに強め合う波長が違うから",
+          "シャボン液そのものが色をもっているから",
+          "膜が光を吸収して発光するから",
+          "膜の中で光の振動数が変わるから"
+        ] },
+      { id: 54, text: "薄膜の厚さ \\(d\\) が波長に比べて<strong>きわめて薄い</strong>（\\(d \\fallingdotseq 0\\)）とき、反射光はどう見えるか。",
+        choices: [
+          "2つの反射光が逆位相で打ち消し合うため、暗く見える",
+          "2つの反射光が同位相で強め合うため、明るく見える",
+          "白色に見える",
+          "膜がないときと同じ明るさになる"
+        ] },
+      { id: 55, text: "ある波長の光について反射光が強め合っているとき、その波長の<strong>透過光</strong>はどうなっているか。",
+        choices: [ "弱め合っている", "同じく強め合っている", "干渉していない", "位相が \\(\\pi\\) ずれている以外は同じ" ] },
+      { id: 56, text: "ガラス（屈折率 1.5）の表面に、屈折率 1.3 の薄膜をコーティングした。膜の上面と下面での反射の位相について正しいものはどれか。",
+        choices: [
+          "どちらの面でも位相が \\(\\pi\\) ずれるので、位相のずれによる差はない",
+          "上面だけ位相が \\(\\pi\\) ずれる",
+          "下面だけ位相が \\(\\pi\\) ずれる",
+          "どちらの面でも位相は変化しない"
+        ] },
+      { id: 57, text: "空気 → 膜（屈折率 \\(n\\)）→ ガラス と屈折率が大きくなる反射防止膜で、垂直入射の反射光を最も弱くする最小の厚さ \\(d\\) はどれか。",
+        choices: [ "\\(d = \\dfrac{\\lambda}{4n}\\)", "\\(d = \\dfrac{\\lambda}{2n}\\)", "\\(d = \\dfrac{\\lambda}{4}\\)", "\\(d = \\dfrac{n\\lambda}{4}\\)" ] },
+      { id: 58, text: "シャボン玉を見る角度を変えると色が変わって見えるのはなぜか。",
+        choices: [
+          "斜めに入射すると膜の中を通る道のりが変わり、強め合う波長が変わるから",
+          "見る角度によって膜の屈折率が変わるから",
+          "見る角度によって光の振動数が変わるから",
+          "見る角度によって膜の厚さそのものが変わるから"
+        ] }
+    ]
+  },
+
+  {
+    id: 6,
+    label: "ニュートンリング",
+    subtitle: "平凸レンズと平面ガラス",
+    available: true,
+    questions: [
+      { id: 59, text: "平面ガラス板の上に、半径 \\(R\\) の球面でつくった凸レンズを置くと、図のような干渉縞が観察される。レンズ下面の A 点で反射した光と、A 点を通って平面ガラスで反射した光が干渉して強め合ったとする。A 点と平面ガラスの間隔を \\(d\\) とするとき、中心から距離 \\(r\\) における2つの反射光（図で便宜的に赤と青で表した光）の経路差はどれか。<br><span style=\"font-size:12px;color:#64748b;\">※実際に赤い光・青い光を用いているわけではない。</span>",
+        image: [IMG_NEWTON_TOP, IMG_NEWTON],
+        imgSize: 'half',
+        choices: [ "\\(2d\\)", "\\(d\\)", "\\(\\dfrac{d}{2}\\)", "\\(2nd\\)" ] },
+      { id: 60, text: "A 点での反射と、平面ガラスでの反射における位相のずれはどうなるか。",
+        image: IMG_NEWTON,
+        imgSize: 'half',
+        choices: [
+          "A 点では位相はずれず（自由端反射）、平面ガラスでは \\(\\pi\\) ずれる（固定端反射）",
+          "A 点では \\(\\pi\\) ずれ（固定端反射）、平面ガラスでは位相はずれない（自由端反射）",
+          "A 点でも平面ガラスでも \\(\\pi\\) ずれる",
+          "A 点でも平面ガラスでも位相はずれない"
+        ] },
+      { id: 61, text: "経路差 \\(2d\\) を、中心からの距離 \\(r\\) と凸レンズの球面の半径 \\(R\\) を用いて表したい。まず三平方の定理より \\(R^{2}\\) はどう表せるか。",
+        image: IMG_NEWTON,
+        imgSize: 'half',
+        choices: [
+          "\\(R^{2} = r^{2}+(R-d)^{2}\\)",
+          "\\(R^{2} = r^{2}+d^{2}\\)",
+          "\\(R^{2} = r^{2}+(R+d)^{2}\\)",
+          "\\(R^{2} = (R-d)^{2}-r^{2}\\)"
+        ] },
+      { id: 62, text: "\\(\\dfrac{d}{R}\\) がきわめて小さいことから、\\(a\\) が微小であるときの近似 \\((1+a)^{n} \\fallingdotseq 1+na\\) を用いると、\\(d\\) はどう表せるか。",
+        image: IMG_NEWTON,
+        imgSize: 'half',
+        choices: [
+          "\\(d = \\dfrac{r^{2}}{2R}\\)",
+          "\\(d = \\dfrac{r^{2}}{R}\\)",
+          "\\(d = \\dfrac{2r^{2}}{R}\\)",
+          "\\(d = \\dfrac{r^{2}}{4R}\\)"
+        ] },
+      { id: 63, text: "経路差 \\(2d\\) は \\(\\dfrac{r^{2}}{R}\\) であるから、2つの光が<strong>強め合う</strong>条件はどれか。光の波長を \\(\\lambda\\)、整数を \\(m\\) とする。",
+        image: IMG_NEWTON,
+        imgSize: 'half',
+        choices: [
+          "\\(\\dfrac{r^{2}}{R} = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\dfrac{r^{2}}{R} = m\\lambda\\)",
+          "\\(\\dfrac{r^{2}}{2R} = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(\\dfrac{2r^{2}}{R} = m\\lambda\\)"
+        ] },
+      { id: 64, text: "ニュートンリングを上から反射光で観察したとき、中心はどう見えるか。",
+        image: IMG_NEWTON,
+        imgSize: 'half',
+        choices: [ "暗点になる", "明点になる", "白色に見える", "虹色に見える" ] },
+      { id: 65, text: "ニュートンリングで、\\(m\\) 番目の<strong>暗環</strong>の半径 \\(r\\) を表す式はどれか。",
+        choices: [
+          "\\(r^{2} = mR\\lambda\\)",
+          "\\(r^{2} = \\left(m+\\dfrac{1}{2}\\right)R\\lambda\\)",
+          "\\(r = mR\\lambda\\)",
+          "\\(r^{2} = \\dfrac{mR}{\\lambda}\\)"
+        ] },
+      { id: 66, text: "ニュートンリングで、\\(m\\) 番目の<strong>明環</strong>の半径 \\(r\\) を表す式はどれか。",
+        choices: [
+          "\\(r^{2} = \\left(m+\\dfrac{1}{2}\\right)R\\lambda\\)",
+          "\\(r^{2} = mR\\lambda\\)",
+          "\\(r^{2} = 2mR\\lambda\\)",
+          "\\(r = \\left(m+\\dfrac{1}{2}\\right)R\\lambda\\)"
+        ] },
+      { id: 67, text: "ニュートンリングの明暗の環の間隔は、中心から外側へいくにつれてどうなるか。",
+        choices: [
+          "しだいに狭くなる",
+          "しだいに広くなる",
+          "どこも等間隔である",
+          "広くなったり狭くなったりをくり返す"
+        ] },
+      { id: 68, text: "同じ実験を、曲率半径 \\(R\\) がより大きい（より平らな）レンズに変えて行うと、リングはどうなるか。",
+        choices: [
+          "同じ次数の環の半径が大きくなり、リングの間隔も広がる",
+          "同じ次数の環の半径が小さくなり、リングの間隔も狭くなる",
+          "半径は変わらないが、間隔だけが狭くなる",
+          "リングは見えなくなる"
+        ] },
+      { id: 69, text: "レンズと平面ガラスのすきまを、屈折率 \\(n\\) の液体で満たすと、暗環の半径はどうなるか。",
+        choices: [
+          "\\(\\dfrac{1}{\\sqrt{n}}\\) 倍になる（小さくなる）",
+          "\\(\\dfrac{1}{n}\\) 倍になる",
+          "\\(\\sqrt{n}\\) 倍になる",
+          "変わらない"
+        ] },
+      { id: 70, text: "ニュートンリングを<strong>下から透過光</strong>で観察すると、明暗はどうなるか。",
+        choices: [
+          "反射光で見たときと明暗が逆になり、中心は明点になる",
+          "反射光で見たときとまったく同じに見える",
+          "縞が消えて一様な明るさになる",
+          "リングの間隔だけが2倍になる"
+        ] }
+    ]
+  },
+
+  {
+    id: 7,
+    label: "くさび型ガラス",
+    subtitle: "2枚のガラスによる空気層の干渉",
+    available: true,
+    questions: [
+      { id: 71, text: "平面ガラスを2枚重ね、一方の端に紙1枚をはさんで少し傾け、くさび形の空気層をつくる。上から光を当てると、図のように等間隔な平行線状の縞模様が見える。上のガラスの下面と下のガラスの上面の間隔が \\(d\\) の位置（くさびの頂点から距離 \\(x\\)）での干渉を考える。この2つの反射光の経路差を \\(d\\) を用いて表すとどうなるか。",
+        image: IMG_WEDGE_TOP,
+        imgSize: 'wide',
+        choices: [ "\\(2d\\)", "\\(d\\)", "\\(\\dfrac{d}{2}\\)", "\\(2nd\\)" ] },
+      { id: 72, text: "経路差 \\(2d\\) を、頂点からの距離 \\(x\\) とくさびの角 \\(\\theta\\) を用いて表したい。\\(\\dfrac{d}{x}\\) を \\(\\theta\\) を用いて表すとどうなるか。",
+        image: IMG_WEDGE_X,
+        choices: [ "\\(\\tan\\theta\\)", "\\(\\sin\\theta\\)", "\\(\\cos\\theta\\)", "\\(\\dfrac{1}{\\tan\\theta}\\)" ] },
+      { id: 73, text: "\\(\\theta\\) が微小であるときの近似 \\(\\tan\\theta \\fallingdotseq \\theta\\) を用いると、\\(\\dfrac{d}{x}\\) はどうなるか。",
+        image: IMG_WEDGE_X,
+        choices: [ "\\(\\theta\\)", "\\(2\\theta\\)", "\\(\\dfrac{\\theta}{2}\\)", "\\(\\dfrac{1}{\\theta}\\)" ] },
+      { id: 74, text: "以上より、経路差 \\(2d\\) を \\(x\\) と \\(\\theta\\) を用いて表すとどうなるか。",
+        image: IMG_WEDGE_X,
+        choices: [ "\\(2x\\theta\\)", "\\(x\\theta\\)", "\\(\\dfrac{2x}{\\theta}\\)", "\\(\\dfrac{2\\theta}{x}\\)" ] },
+      { id: 75, text: "上のガラスの下面での反射と、下のガラスの上面での反射における位相のずれはどうなるか。",
+        image: IMG_WEDGE_X,
+        choices: [
+          "上のガラスの下面では位相はずれず（自由端反射）、下のガラスの上面では \\(\\pi\\) ずれる（固定端反射）",
+          "上のガラスの下面では \\(\\pi\\) ずれ（固定端反射）、下のガラスの上面では位相はずれない（自由端反射）",
+          "どちらの面でも位相が \\(\\pi\\) ずれる",
+          "どちらの面でも位相はずれない"
+        ] },
+      { id: 76, text: "以上より、この \\(x\\) の地点で反射光が<strong>強め合う</strong>条件はどれか。光の波長を \\(\\lambda\\)、整数を \\(m\\) とする。",
+        image: IMG_WEDGE_X,
+        choices: [
+          "\\(2x\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(2x\\theta = m\\lambda\\)",
+          "\\(x\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(2x\\theta = (2m+1)\\lambda\\)"
+        ] },
+      { id: 77, text: "この \\(x\\) の地点で反射光が<strong>弱め合う</strong>条件はどれか。光の波長を \\(\\lambda\\)、整数を \\(m\\) とする。",
+        image: IMG_WEDGE_X,
+        choices: [
+          "\\(2x\\theta = m\\lambda\\)",
+          "\\(2x\\theta = \\left(m+\\dfrac{1}{2}\\right)\\lambda\\)",
+          "\\(x\\theta = m\\lambda\\)",
+          "\\(2x\\theta = 2m\\lambda\\)"
+        ] },
+      { id: 78, text: "明るい線（明線）の間隔 \\(\\Delta x\\) はどれか。",
+        image: IMG_WEDGE_X,
+        choices: [
+          "\\(\\dfrac{\\lambda}{2\\theta}\\)",
+          "\\(\\dfrac{\\lambda}{\\theta}\\)",
+          "\\(\\dfrac{2\\lambda}{\\theta}\\)",
+          "\\(\\dfrac{\\lambda\\theta}{2}\\)"
+        ] },
+      { id: 79, text: "このくさびが、長さ \\(L\\) の2枚のガラスの間に幅 \\(a\\) の紙をはさんでつくられていたとする。\\(\\tan\\theta = \\dfrac{a}{L}\\) であるから、強め合う位置 \\(x\\) はどれか。",
+        image: IMG_WEDGE,
+        choices: [
+          "\\(x = \\dfrac{\\left(m+\\frac{1}{2}\\right)\\lambda L}{2a}\\)",
+          "\\(x = \\dfrac{m\\lambda L}{2a}\\)",
+          "\\(x = \\dfrac{\\left(m+\\frac{1}{2}\\right)\\lambda a}{2L}\\)",
+          "\\(x = \\dfrac{\\left(m+\\frac{1}{2}\\right)\\lambda L}{a}\\)"
+        ] },
+      { id: 80, text: "くさび形空気層で、2枚のガラスが接している端はどう見えるか。",
+        choices: [ "暗くなる（暗線になる）", "明るくなる（明線になる）", "白色に光る", "何も見えない" ] },
+      { id: 81, text: "くさび形空気層にできる干渉縞の形として正しいものはどれか。",
+        choices: [
+          "接触した端に平行な、等間隔の直線状の縞",
+          "接触した端を中心とする同心円状の縞",
+          "外側へいくほど間隔が狭くなる直線状の縞",
+          "不規則な形の縞"
+        ] },
+      { id: 82, text: "長さ \\(L\\) のガラス板の一端に幅 \\(a\\) の紙をはさんだとき、接触部から距離 \\(x\\) の位置での空気層の厚さ \\(d\\) はどれか。",
+        image: IMG_WEDGE,
+        choices: [ "\\(\\dfrac{ax}{L}\\)", "\\(\\dfrac{Lx}{a}\\)", "\\(\\dfrac{aL}{x}\\)", "\\(\\dfrac{ax}{2L}\\)" ] },
+      { id: 83, text: "長さ \\(L\\)、紙の幅 \\(a\\) のくさび形空気層にできる暗線の間隔 \\(\\Delta x\\) はどれか。",
+        image: IMG_WEDGE,
+        choices: [ "\\(\\dfrac{\\lambda L}{2a}\\)", "\\(\\dfrac{\\lambda L}{a}\\)", "\\(\\dfrac{2\\lambda L}{a}\\)", "\\(\\dfrac{\\lambda a}{2L}\\)" ] },
+      { id: 84, text: "くさび形の空気層を、屈折率 \\(n\\) の液体で満たすと干渉縞の間隔はどうなるか。",
+        choices: [ "\\(\\dfrac{1}{n}\\) 倍になる（狭くなる）", "\\(n\\) 倍になる（広くなる）", "変わらない", "縞が消える" ] },
+      { id: 85, text: "はさむ紙をより厚いものに変える（\\(a\\) を大きくする）と、干渉縞の間隔はどうなるか。",
+        choices: [ "狭くなる", "広くなる", "変わらない", "縞が消える" ] }
+    ]
+  },
+  {
+    id: 8,
+    label: "レンズと鏡",
+    subtitle: "写像公式と像のでき方",
+    available: true,
+    questions: [
+      { id: 201, text: "「レンズ」の語源として正しいものはどれか。",
+        choices: ["レンズ豆に形が似ているから","レンズに形が似ているから"] },
+      { id: 202, text: "凸レンズに光軸に平行な光を入射させると、光はどこへ向かうか。",
+        choices: ["焦点に向かって進む","光軸に平行に進む","焦点から発せられたように進む"] },
+      { id: 203, text: "凸レンズでできる像の種類はどれか。",
+        choices: ["実像と虚像","実像のみ","虚像のみ"] },
+      { id: 204, text: "凸レンズで、物体までの距離 \\(a\\)、像までの距離 \\(b\\)、焦点距離 \\(f\\) のときの写像公式はどれか。",
+        choices: ["\\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\)","\\(\\dfrac{1}{a}+\\dfrac{1}{b}=f\\)","\\(a+b=\\dfrac{1}{f}\\)","\\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\)"] },
+      { id: 205, text: "凸レンズにおいて、<strong>虚像</strong>ができる条件はどれか。焦点距離を \\(f\\)、物体距離を \\(a\\) とする。",
+        choices: ["\\(a&lt;f\\)","\\(a=f\\)","\\(a&gt;f\\)"] },
+      { id: 206, text: "凸レンズにおいて、<strong>実像</strong>ができる条件はどれか。焦点距離を \\(f\\)、物体距離を \\(a\\) とする。",
+        choices: ["\\(a&gt;f\\)","\\(a=f\\)","\\(a&lt;f\\)"] },
+      { id: 207, text: "凸レンズで、物体までの距離 \\(a\\)、像までの距離 \\(b\\) のときの倍率はどれか。",
+        choices: ["\\(\\left|\\dfrac{b}{a}\\right|\\)","\\(\\left|\\dfrac{a}{b}\\right|\\)","\\(|ab|\\)","\\(\\left|\\dfrac{ab}{a+b}\\right|\\)"] },
+      { id: 208, text: "凸レンズの焦点の位置に物体を置いたとき、像はどうなるか。",
+        choices: ["見えない（像はできない）","倒立の実像ができる","正立の虚像ができる","正立の実像ができる","倒立の虚像ができる"] },
+      { id: 209, text: "凹レンズでできる像の種類はどれか。",
+        choices: ["虚像のみ","実像のみ","実像と虚像"] },
+      { id: 210, text: "凹レンズで、物体までの距離 \\(a\\)、像までの距離 \\(b\\)、焦点距離 \\(f\\) のときの写像公式はどれか。",
+        choices: ["\\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\)","\\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\)","\\(a+b=-\\dfrac{1}{f}\\)","\\(a+b=f\\)"] },
+      { id: 211, text: "凹面鏡でできる像の種類はどれか。",
+        choices: ["実像と虚像","実像のみ","虚像のみ"] },
+      { id: 212, text: "凸面鏡でできる像の種類はどれか。",
+        choices: ["虚像のみ","実像と虚像","実像のみ"] },
+      { id: 213, text: "凹面鏡で、物体までの距離 \\(a\\)、像までの距離 \\(b\\)、焦点距離 \\(f\\) のときの写像公式はどれか。",
+        choices: ["\\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\)","\\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\)","\\(a+b=-\\dfrac{1}{f}\\)","\\(a+b=\\dfrac{1}{f}\\)"] },
+      { id: 214, text: "凸面鏡で、物体までの距離 \\(a\\)、像までの距離 \\(b\\)、焦点距離 \\(f\\) のときの写像公式はどれか。",
+        choices: ["\\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\)","\\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\)","\\(a+b=-\\dfrac{1}{f}\\)","\\(a+b=\\dfrac{1}{f}\\)"] }
+    ]
+  }
+];
+
+// ============================================================
+// 各問題の解説文
+// ============================================================
+const EXPLANATIONS = {
+  /* ── §1 光波の基本 ── */
+  101 : "電磁波のうち、人間の目が感じ取れる波長域（およそ \\(3.8\\times10^{-7}\\,\\mathrm{m}\\) 〜 \\(7.7\\times10^{-7}\\,\\mathrm{m}\\)）のものを可視光線という。これより波長が短い側が紫外線、長い側が赤外線である。",
+  102 : "太陽光や白熱電球の光のように、さまざまな波長の光が混ざったものを白色光という。プリズムに通すと波長ごとに分かれ、連続スペクトルが得られる。",
+  103 : "単一の波長（＝単一の振動数）だけからなる光を単色光という。レーザー光やナトリウムランプの光がこれに近い。干渉の実験で単色光を使うのは、波長がそろっていないと縞がぼやけるためである。",
+  104 : "真空中の光速は \\(c = 3.0\\times10^{8}\\,\\mathrm{m/s}\\) である。秒速30万キロメートルで、地球を1秒間に約7周半する速さにあたる。",
+  105 : "屈折率 \\(n\\) は「真空中の光速が何分の1に遅くなるか」を表す量で、媒質中の光速は \\(v = \\dfrac{c}{n}\\) となる。\\(n\\ge 1\\) なので、媒質中では必ず遅くなる。",
+  106 : "実際の距離 \\(L\\) に屈折率 \\(n\\) を掛けた \\(nL\\) を光路長（光学距離）という。「真空中を進んだとしたら同じ時間で何 m 進めたか」に直した値であり、干渉では実際の距離ではなく光路長の差（光路差）を比べる。",
+  107 : "媒質1に対する媒質2の相対屈折率は \\(n_{12} = \\dfrac{n_2}{n_1}\\) である。屈折の法則 \\(\\dfrac{\\sin i}{\\sin r} = n_{12}\\) の右辺がこれにあたる。添字の順（1に対する2）と分数の向きに注意する。",
+  108 : "媒質中では光速が \\(\\dfrac{c}{n}\\) になる一方、振動数は変わらない。\\(v = f\\lambda\\) より波長だけが \\(\\dfrac{\\lambda}{n}\\) に縮む。",
+  109 : "振動数を決めるのは光源であり、媒質を変えても変化しない。境界面で1秒間に入ってくる波の数と出ていく波の数が等しくなければ、波が境界に溜まってしまうと考えるとよい。速さと波長がともに \\(\\dfrac{1}{n}\\) 倍になることで \\(v=f\\lambda\\) が保たれる。",
+  110 : "屈折角が \\(90^\\circ\\) に達すると、それ以上入射角を大きくしても屈折光は出られず、すべてが反射される。これを全反射といい、そのときの入射角を臨界角という。光ファイバーはこの現象を利用している。",
+  111 : "屈折の法則より、屈折率が大きい媒質から小さい媒質へ進むときは屈折角が入射角より大きくなる。入射角を大きくしていくと屈折角が先に \\(90^\\circ\\) に達するため、全反射が起こりうる。逆向き（小 → 大）では屈折角のほうが小さいので、決して \\(90^\\circ\\) には達しない。",
+  112 : "屈折の法則 \\(n\\sin\\theta_0 = 1\\times\\sin 90^\\circ\\) に \\(\\sin 90^\\circ = 1\\) を代入すると \\(\\sin\\theta_0 = \\dfrac{1}{n}\\) が得られる。\\(n\\) が大きいほど臨界角は小さく、全反射が起こりやすい。",
+  113 : "可視光線は波長の長いほうから赤・橙・黄・緑・青・藍・紫の順に並ぶ。したがって橙・緑・藍では（長）橙・緑・藍（短）となる。虹の色の並びとして覚えておくとよい。",
+  114 : "太陽光の連続スペクトルに現れる多数の暗線をフラウンホーファー線という。太陽の大気中の原子が特定の波長を吸収して生じるもので、線の位置から元素を特定できる。",
+  115 : "光が大気中の微粒子に当たって四方に散る現象を散乱という。波長の短い青色ほど散乱されやすいため昼間の空は青く、夕方は光が大気を長く通るため青が散乱し尽くされ、残った赤が届いて夕焼けになる。",
+  116 : "光は電場と磁場が進行方向と垂直に振動しながら伝わる電磁波であり、横波である。偏光が存在すること自体が、光が横波である証拠になっている。",
+  117 : "太陽や電球の光のように、進行方向に垂直なあらゆる向きの振動が混ざった光を自然光という。",
+  118 : "特定の方向にだけ振動する光を偏光という。自然光を偏光板に通すと得られる。液晶ディスプレイやサングラスの反射除去はこの性質を利用している。",
+  119 : "屈折率が大きい媒質から小さい媒質へ向かう境界（例：ガラス → 空気）での反射は、自由端反射にあたる。",
+  120 : "自由端反射なので位相は変化しない。干渉の計算では、この面での反射に半波長のずれを加えてはいけない。",
+  121 : "屈折率が小さい媒質から大きい媒質へ向かう境界（例：空気 → ガラス）での反射は、固定端反射にあたる。",
+  122 : "固定端反射なので位相が \\(\\pi\\)（半波長ぶん）ずれる。薄膜やくさび形の干渉では、この半波長のずれを経路差に加えるかどうかで強め合う条件と弱め合う条件が入れ替わるため、必ず確認する。",
+
+  /* ── §2〜§7 光の干渉 ── */
+  1 : "干渉縞が時間的に安定して見えるためには、2つの光の振動数が等しく、位相差がつねに一定（可干渉、コヒーレント）でなければならない。独立した2つの光源ではこの関係が保てないため、1つの光源から出た光を2つに分けて干渉させる。",
+  2 : "同位相で出発した光の場合、経路差がちょうど波長の整数倍 \\(m\\lambda\\) になると山と山が重なり、強め合う。",
+  3 : "経路差が半波長の奇数倍、すなわち \\(\\left(m+\\frac{1}{2}\\right)\\lambda\\) のとき、山と谷が重なって弱め合う。",
+  4 : "媒質中では速さが \\(v=c/n\\)、波長が \\(\\lambda'=\\lambda/n\\) になる。振動数 \\(\\nu = v/\\lambda'\\) は変わらないことが重要である。",
+  5 : "屈折率 \\(n\\) の媒質中の距離 \\(l\\) は、真空中の距離に直すと \\(nl\\) に相当する。これを光路長（光学距離）といい、干渉では実際の距離ではなく光路長の差（光路差）を考える。",
+  6 : "屈折率の小さい媒質から大きい媒質へ向かう境界での反射（例：空気 → ガラス）は固定端反射にあたり、反射光の位相は \\(\\pi\\)（半波長ぶん）ずれる。",
+  7 : "屈折率の大きい媒質から小さい媒質へ向かう境界での反射（例：ガラス → 空気）は自由端反射にあたり、反射光の位相は変化しない。",
+  8 : "媒質が変わっても光源が決める振動数は変化しない。速さと波長はともに \\(1/n\\) 倍になるので、\\(v=\\nu\\lambda\\) の関係が保たれる。",
+  9 : "回折は、波が障害物やすき間の背後に回り込んで広がる現象。すき間の幅が波長に近いほど著しい。選択肢の「重なって強め合う」は干渉、「向きを変える」は屈折である。",
+  10 : "回折はすき間の幅が波長と同程度のとき最も著しくなる。幅が波長に比べて非常に広いと、光はほぼ直進する。",
+  11 : "重ね合わせの原理により、重なった点の変位は各波の変位の和になる。同位相なら強め合い、逆位相なら弱め合う。",
+  12 : "経路差 \\(0\\) の位置ではどの波長の光も強め合うので、白色光を用いると中央は白色になる。その外側では波長ごとに明線の位置がずれるため色づいて見える。",
+  13 : "干渉と回折は波に特有の現象であり、これらが観測されることは光が波であること（波動性）を示している。",
+
+  14 : "\\(L\\) が十分に大きいとき \\(\\mathrm{S_1P}\\) と \\(\\mathrm{S_2P}\\) はほぼ平行とみなせる。\\(\\mathrm{S_2}\\) から \\(\\mathrm{S_1P}\\) に垂線を下ろすと、経路差はその足から \\(\\mathrm{S_1}\\) までの長さに等しく、\\(d\\sin\\theta\\) となる。",
+  15 : "中点 O、中央の点、P のつくる直角三角形において、\\(\\theta\\) の対辺が \\(x\\)、隣辺が \\(L\\) なので \\(\\tan\\theta = \\dfrac{x}{L}\\)。",
+  16 : "経路差 \\(= d\\sin\\theta \\fallingdotseq d\\tan\\theta = d\\cdot\\dfrac{x}{L} = \\dfrac{dx}{L}\\)。これがヤングの実験の基本式である。",
+  17 : "\\(\\mathrm{S_1}\\) は中心線から P と反対側へ \\(\\dfrac{d}{2}\\) ずれているので、スクリーンに平行な方向の距離は \\(x+\\dfrac{d}{2}\\)。三平方の定理より \\(\\mathrm{S_1P}=\\sqrt{L^{2}+\\left(x+\\dfrac{d}{2}\\right)^{2}}\\)。",
+  18 : "\\(\\mathrm{S_2}\\) は中心線から P と同じ側へ \\(\\dfrac{d}{2}\\) ずれているので、その方向の距離は \\(x-\\dfrac{d}{2}\\)。よって \\(\\mathrm{S_2P}=\\sqrt{L^{2}+\\left(x-\\dfrac{d}{2}\\right)^{2}}\\)。",
+  19 : "\\(\\sqrt{L^{2}+\\left(x\\pm\\dfrac{d}{2}\\right)^{2}} = L\\left\\{1+\\dfrac{\\left(x\\pm\\frac{d}{2}\\right)^{2}}{L^{2}}\\right\\}^{\\frac{1}{2}} \\fallingdotseq L+\\dfrac{\\left(x\\pm\\frac{d}{2}\\right)^{2}}{2L}\\)。差をとると \\(\\dfrac{\\left(x+\\frac{d}{2}\\right)^{2}-\\left(x-\\frac{d}{2}\\right)^{2}}{2L}=\\dfrac{2dx}{2L}=\\dfrac{dx}{L}\\) となり、角度を使った求め方と一致する。",
+  20 : "経路差が波長の整数倍のとき、山と山が重なって強め合う。よって明線の条件は \\(\\dfrac{dx}{L}=m\\lambda\\)。",
+  21 : "経路差が半波長の奇数倍のとき、山と谷が重なって弱め合う。よって暗線の条件は \\(\\dfrac{dx}{L}=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\)。",
+  22 : "明線の位置は \\(x=\\dfrac{mL\\lambda}{d}\\)。隣り合う明線（\\(m\\) と \\(m+1\\)）の差をとると \\(\\Delta x=\\dfrac{L\\lambda}{d}\\) となり、縞は等間隔に並ぶ。",
+  23 : "\\(\\Delta x=\\dfrac{L\\lambda}{d}\\) より、\\(d\\) を2倍にすると間隔は \\(\\dfrac{1}{2}\\) 倍になる。スリットを近づけるほど縞は広がる。",
+  24 : "\\(\\Delta x=\\dfrac{L\\lambda}{d}\\) より、\\(L\\) を2倍にすると間隔も2倍になる。スクリーンを遠ざけると縞は広がる。",
+  25 : "\\(\\Delta x=\\dfrac{L\\lambda}{d}\\) は波長に比例する。赤色光は青色光より波長が長いので、縞の間隔は赤色光の方が広い。",
+  26 : "単スリット \\(\\mathrm{S_0}\\) を通った光が \\(\\mathrm{S_1}\\)、\\(\\mathrm{S_2}\\) に届くことで、この2つが同位相で振動する光源となり、干渉できるようになる。",
+  27 : "中央 O では \\(\\mathrm{S_1O}=\\mathrm{S_2O}\\) で経路差が \\(0\\) なので、\\(m=0\\) の明線ができる。",
+  28 : "液体中では波長が \\(\\dfrac{\\lambda}{n}\\) になるので、\\(\\Delta x=\\dfrac{L\\lambda}{nd}\\) となり、縞の間隔は \\(\\dfrac{1}{n}\\) 倍に狭くなる。",
+  29 : "膜によって \\(\\mathrm{S_1}\\) 側の光路長が長くなるため、光路差が \\(0\\) になる点は \\(\\mathrm{S_1}\\) に近い側へ移る。つまり縞全体が膜を貼った側へ平行移動する（間隔は変わらない）。",
+  30 : "中央は経路差 \\(0\\) ですべての色が強め合い白色になる。外側では \\(x=\\dfrac{mL\\lambda}{d}\\) より波長の短い紫が中央側、波長の長い赤が外側に来る。",
+  31 : "明線の条件 \\(\\dfrac{dx}{L}=m\\lambda\\) を \\(x\\) について解くと \\(x=\\dfrac{mL\\lambda}{d}\\)。",
+  32 : "\\(\\Delta x=\\dfrac{L\\lambda}{d}\\) より、\\(d\\) を大きくすると間隔は<strong>狭く</strong>なる。間隔を広げるには \\(d\\) を小さく、\\(L\\) を大きく、\\(\\lambda\\) を長くすればよい。",
+
+  33 : "回折格子に垂直入射した光が角 \\(\\theta\\) 方向に進むとき、隣り合うすき間からの光の経路差は \\(d\\sin\\theta\\) となる。",
+  34 : "経路差 \\(d\\sin\\theta\\) が波長の整数倍のとき、すべてのすき間からの光が同位相で重なり明線となる。よって \\(d\\sin\\theta=m\\lambda\\)。",
+  35 : "格子定数はすじの間隔なので \\(d=\\dfrac{1\\,\\mathrm{cm}}{5000}=\\dfrac{1.0\\times10^{-2}}{5000}=2.0\\times10^{-6}\\,\\mathrm{m}\\)。",
+  36 : "\\(\\sin\\theta=\\dfrac{m\\lambda}{d}\\) より、\\(d\\) が小さいほど \\(\\sin\\theta\\) は大きくなり、明線は大きく開いた角度に現れる。",
+  37 : "回折格子ではすき間の数が非常に多いため、条件からわずかにずれると多数の光がたがいに打ち消し合う。その結果、明線は細く鋭く、しかも明るくなる。",
+  38 : "\\(m=0\\) では \\(\\sin\\theta=0\\) となり、波長によらずすべての色が同じ向きに強め合うので白色の明線になる。\\(m\\geqq1\\) では波長ごとに分かれてスペクトルが見える。",
+  39 : "\\(\\sin\\theta=\\dfrac{m\\lambda}{d}\\leqq1\\) より \\(m\\leqq\\dfrac{d}{\\lambda}\\)。これを超える次数の明線は現れない。",
+  40 : "\\(\\sin\\theta=\\dfrac{m\\lambda}{d}=\\dfrac{1\\times6.0\\times10^{-7}}{2.0\\times10^{-6}}=0.30\\)。",
+  41 : "\\(\\sin\\theta=\\dfrac{m\\lambda}{d}\\) より、波長が長いほど \\(\\theta\\) は大きい。したがって最も外側に現れるのは波長の長い赤色である（プリズムによる分散では紫が最も大きく曲がる点と逆になるので注意）。",
+  42 : "記録面に刻まれた細かい溝が反射型の回折格子としてはたらく。波長ごとに強め合う向きが異なるため、見る角度によってさまざまな色に見える。",
+  43 : "明線の角 \\(\\theta\\) と次数 \\(m\\) を測れば、既知の格子定数 \\(d\\) を用いて \\(\\lambda=\\dfrac{d\\sin\\theta}{m}\\) から波長が求められる。",
+
+  44 : "A と B は同じ波面上にあるので、そこから先の道のりを比べればよい。D から AE に下ろした垂線の足が C であり、\\(\\mathrm{BD}=\\mathrm{AC}\\) とみなせるので、AC の部分は打ち消し合う。残る差が \\(\\mathrm{CE}+\\mathrm{ED}\\)（＝CED）である。",
+  45 : "AH、DG、FG はいずれも境界面に垂直（法線方向）である。反射の法則より DE は法線 DG と角 \\(\\theta\\) をなすので \\(\\angle\\mathrm{GDE}=\\theta\\)。また直線 AEF はどこでも法線と角 \\(\\theta\\) をなすので \\(\\angle\\mathrm{GFE}=\\theta\\) となる。",
+  46 : "\\(\\angle\\mathrm{GDE}=\\angle\\mathrm{GFE}=\\theta\\) より \\(\\triangle\\mathrm{DEF}\\) は二等辺三角形で \\(\\mathrm{ED}=\\mathrm{EF}\\)。よって \\(\\mathrm{CED}=\\mathrm{CE}+\\mathrm{ED}=\\mathrm{CE}+\\mathrm{EF}=\\mathrm{CF}\\)。G は DF の中点なので \\(\\mathrm{DF}=2d\\)、また \\(\\mathrm{DC}\\perp\\mathrm{CF}\\) だから \\(\\mathrm{CF}=\\mathrm{DF}\\cos\\theta=2d\\cos\\theta\\)。",
+  47 : "干渉を決めるのは実際の長さではなく光路長（屈折率×距離）の差である。CEF はすべて屈折率 \\(n\\) の膜の中にあるので、光路長差は \\(n\\times2d\\cos\\theta=2nd\\cos\\theta\\) となる。",
+  48 : "D は 空気（約 1）→ 薄膜（\\(n&gt;1\\)）で屈折率が大きくなる向きの反射なので固定端反射にあたり、位相が \\(\\pi\\) ずれる。E は 薄膜（\\(n\\)）→ 水（\\(n'\\)、\\(n'&lt;n\\)）で屈折率が小さくなる向きの反射なので自由端反射にあたり、位相はずれない。",
+  49 : "片方の反射だけ位相が \\(\\pi\\) ずれるため、光路差が半波長ずれたのと同じ効果をもち、強め合いと弱め合いの条件が入れかわる。したがって強め合う条件は \\(2nd\\cos\\theta=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\)。垂直入射（\\(\\theta=0\\)）とすれば \\(2nd=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\) となり、教科書の式と一致する。",
+  50 : "一方だけ位相が \\(\\pi\\) ずれるので、強め合いと弱め合いの条件が入れかわる。したがって強め合う条件は \\(2nd=\\left(m+\\frac{1}{2}\\right)\\lambda\\)。",
+  51 : "同じ理由から、弱め合う条件は \\(2nd=m\\lambda\\) となる。位相のずれを忘れると条件が逆になるので注意。",
+  52 : "位相が \\(\\pi\\) ずれることは、光路差が半波長 \\(\\dfrac{\\lambda}{2}\\) 変化したことと同じ効果をもつ。そのため、強め合いと弱め合いの条件が入れかわる。",
+  53 : "膜の厚さが場所によってわずかに違うため、強め合う波長も場所ごとに異なる。白色光の中から特定の色が強め合って見えるので、色づいた模様になる。",
+  54 : "\\(d\\fallingdotseq0\\) では光路差 \\(2nd\\fallingdotseq0\\) だが、上面での反射で位相が \\(\\pi\\) ずれるため2つの反射光は逆位相となり、打ち消し合って暗く見える。",
+  55 : "エネルギー保存より、反射光が強め合っている波長では透過光は弱め合っている。反射と透過の明暗はつねに逆になる。",
+  56 : "上面は 空気(1.0) → 膜(1.3) で位相が \\(\\pi\\) ずれ、下面は 膜(1.3) → ガラス(1.5) でも屈折率が大きくなる向きなので位相が \\(\\pi\\) ずれる。両方ずれるので、位相のずれによる差は生じない。",
+  57 : "両面で位相が \\(\\pi\\) ずれるため、弱め合う条件は \\(2nd=\\left(m+\\frac{1}{2}\\right)\\lambda\\)。\\(m=0\\) として \\(d=\\dfrac{\\lambda}{4n}\\) が最小の厚さとなる。カメラのレンズなどに使われる反射防止膜（コーティング）の原理である。",
+  58 : "斜めに入射すると膜の中を通る道のりが長くなり、光路差が変わる。そのため強め合う波長が変化し、見る角度によって色が変わって見える。",
+
+  59 : "2つの光はレンズと平面ガラスのすきま（厚さ \\(d\\)）を往復する分だけ道のりが違う。したがって経路差は \\(2d\\) である。すきまは空気なので、これがそのまま光路差になる。",
+  60 : "A 点での反射は ガラス → 空気 で屈折率が小さくなる向きなので自由端反射にあたり、位相はずれない。平面ガラスでの反射は 空気 → ガラス で屈折率が大きくなる向きなので固定端反射にあたり、位相が \\(\\pi\\) ずれる。",
+  61 : "球面の中心 O から平面ガラスまでの距離が \\(R\\)、A 点の高さが \\(d\\) なので、O から A 点の高さまでの縦の長さは \\(R-d\\)。横の長さ \\(r\\) と合わせて三平方の定理より \\(R^{2}=r^{2}+(R-d)^{2}\\)。",
+  62 : "\\(R-d=\\sqrt{R^{2}-r^{2}}=R\\left(1-\\dfrac{r^{2}}{R^{2}}\\right)^{\\frac{1}{2}} \\fallingdotseq R\\left(1-\\dfrac{r^{2}}{2R^{2}}\\right)=R-\\dfrac{r^{2}}{2R}\\) より \\(d=\\dfrac{r^{2}}{2R}\\)。（\\(R^{2}=r^{2}+(R-d)^{2}\\) を展開して微小量 \\(d^{2}\\) を無視しても同じ結果になる。）",
+  63 : "\\(2d=2\\times\\dfrac{r^{2}}{2R}=\\dfrac{r^{2}}{R}\\)。片方の反射だけ位相が \\(\\pi\\) ずれるので強め合いと弱め合いの条件が入れかわり、強め合う条件は \\(\\dfrac{r^{2}}{R}=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\) となる。",
+  64 : "中心では空気層の厚さが \\(d=0\\)。\\(2d=0=0\\cdot\\lambda\\) となり暗環の条件を満たすので、中心は暗点になる。",
+  65 : "暗環の条件 \\(2d=m\\lambda\\) に \\(d=\\dfrac{r^{2}}{2R}\\) を代入すると \\(\\dfrac{r^{2}}{R}=m\\lambda\\)、すなわち \\(r^{2}=mR\\lambda\\)。",
+  66 : "明環の条件 \\(2d=\\left(m+\\frac{1}{2}\\right)\\lambda\\) に \\(d=\\dfrac{r^{2}}{2R}\\) を代入して \\(r^{2}=\\left(m+\\frac{1}{2}\\right)R\\lambda\\) となる。",
+  67 : "\\(r=\\sqrt{mR\\lambda}\\) より半径は \\(\\sqrt{m}\\) に比例する。次数が上がるほど半径の増え方はゆるやかになるので、外側ほど環の間隔は狭くなる。",
+  68 : "\\(r^{2}=mR\\lambda\\) より \\(r\\) は \\(\\sqrt{R}\\) に比例する。\\(R\\) が大きい（平らな）レンズほど同じ次数の環の半径が大きくなり、リングの間隔も広がる。",
+  69 : "液体中では光路差が \\(2nd\\) となり、暗環の条件は \\(2nd=m\\lambda\\)。これより \\(r^{2}=\\dfrac{mR\\lambda}{n}\\) となるので、半径は \\(\\dfrac{1}{\\sqrt{n}}\\) 倍に小さくなる。",
+  70 : "透過光では位相が \\(\\pi\\) ずれる反射が起こらないため、反射光とは明暗が逆になる。したがって中心は明点となる。",
+
+  71 : "2つの反射光は空気層の厚さ \\(d\\) を往復する分だけ道のりが違うので、経路差は \\(2d\\)。空気の屈折率は 1 なので、これがそのまま光路差になる。",
+  72 : "くさびの頂点、\\(x\\) の地点、その真上のガラス下面がつくる直角三角形において、角 \\(\\theta\\) の対辺が \\(d\\)、隣辺が \\(x\\) なので \\(\\dfrac{d}{x}=\\tan\\theta\\)。",
+  73 : "\\(\\theta\\) が微小なとき \\(\\tan\\theta \\fallingdotseq \\theta\\) と近似できるので、\\(\\dfrac{d}{x} \\fallingdotseq \\theta\\)、すなわち \\(d \\fallingdotseq x\\theta\\)。",
+  74 : "\\(d = x\\theta\\) を代入して、経路差は \\(2d = 2x\\theta\\) となる。頂点から遠ざかるほど経路差が比例して大きくなることがわかる。",
+  75 : "上のガラスの下面での反射は ガラス → 空気 で屈折率が小さくなる向きなので自由端反射にあたり、位相はずれない。下のガラスの上面での反射は 空気 → ガラス で屈折率が大きくなる向きなので固定端反射にあたり、位相が \\(\\pi\\) ずれる。",
+  76 : "片方の反射だけ位相が \\(\\pi\\) ずれるので、強め合いと弱め合いの条件が入れかわる。したがって強め合う条件は \\(2x\\theta=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\)。",
+  77 : "同じ理由から、弱め合う条件は \\(2x\\theta=m\\lambda\\) となる。くさびの頂点（\\(x=0\\)）は \\(m=0\\) にあたり、暗線になる。",
+  78 : "明線の位置は \\(x=\\dfrac{\\left(m+\\frac{1}{2}\\right)\\lambda}{2\\theta}\\)。隣り合う明線（\\(m\\) と \\(m+1\\)）の差をとると \\(\\Delta x=\\dfrac{\\lambda}{2\\theta}\\) となり、縞は等間隔に並ぶ。",
+  79 : "\\(\\theta \\fallingdotseq \\tan\\theta = \\dfrac{a}{L}\\) を \\(2x\\theta=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\) に代入すると \\(\\dfrac{2ax}{L}=\\left(m+\\dfrac{1}{2}\\right)\\lambda\\)。よって \\(x=\\dfrac{\\left(m+\\frac{1}{2}\\right)\\lambda L}{2a}\\)。紙が厚い（\\(a\\) が大きい）ほど縞は密になる。",
+  80 : "接触部では \\(d=0\\) なので \\(2d=0=0\\cdot\\lambda\\) となり、暗線の条件を満たす。したがって接している端は暗くなる。",
+  81 : "空気層の厚さが等しい位置は接触した端に平行な直線になる。暗線は \\(x=\\dfrac{mL\\lambda}{2a}\\) の位置に現れ、\\(m\\) に比例するので等間隔に並ぶ。",
+  82 : "空気層の厚さは接触部からの距離 \\(x\\) に比例して増える。板の長さ \\(L\\) の位置で厚さが \\(a\\) になるので、\\(d=\\dfrac{ax}{L}\\)。",
+  83 : "暗線の条件 \\(2d=m\\lambda\\) に \\(d=\\dfrac{ax}{L}\\) を代入すると \\(x=\\dfrac{mL\\lambda}{2a}\\)。隣り合う暗線の間隔は \\(\\Delta x=\\dfrac{\\lambda L}{2a}\\) となる。",
+  84 : "液体中では光路差が \\(2nd\\) になるので、暗線の条件は \\(2nd=m\\lambda\\)。同じ \\(m\\) に対する厚さが \\(\\dfrac{1}{n}\\) 倍になるため、縞の間隔も \\(\\dfrac{1}{n}\\) 倍に狭くなる。",
+  85 : "\\(\\Delta x=\\dfrac{\\lambda L}{2a}\\) より、\\(a\\) を大きくすると間隔は狭くなる。くさびの傾きが急になるほど縞は密になる。",
+
+  /* ── §8 レンズと鏡 ── */
+  201 : "レンズは、両凸レンズの形が食用のレンズ豆（lens）に似ていることから名づけられた。ラテン語の lens がそのまま語源である。",
+  202 : "凸レンズに光軸に平行な光を入射させると、屈折して光軸上の1点に集まる。この点が焦点であり、レンズの中心から焦点までの距離を焦点距離という。作図では「光軸に平行な光は焦点へ」「中心を通る光は直進」「焦点を通ってきた光は光軸に平行に」の3本を使う。",
+  203 : "凸レンズは、物体の位置によって実像にも虚像にもなる。焦点より遠ければ倒立の実像、焦点より近ければ正立の虚像（拡大鏡として使う場合）ができる。",
+  204 : "凸レンズの写像公式は \\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\) である。\\(b>0\\) なら実像、\\(b&lt;0\\) なら虚像を表す。",
+  205 : "\\(a&lt;f\\)（物体が焦点の内側）のとき、写像公式から \\(b&lt;0\\) となる。これは物体と同じ側に像ができることを意味し、正立の虚像となる。虫めがねで拡大して見ている状態である。",
+  206 : "\\(a&gt;f\\)（物体が焦点の外側）のとき \\(b&gt;0\\) となり、レンズの反対側に倒立の実像ができる。スクリーンに映すことができる。",
+  207 : "倍率は像の大きさと物体の大きさの比で、\\(m=\\left|\\dfrac{b}{a}\\right|\\) と表される。\\(b\\) が負（虚像）になる場合があるため絶対値をとる。",
+  208 : "\\(a=f\\) を写像公式に代入すると \\(\\dfrac{1}{b}=0\\)、すなわち \\(b\\to\\infty\\) となる。屈折した光が平行光線になってしまい、どこにも集まらないため像はできない。",
+  209 : "凹レンズは光を発散させるため、実像はできない。物体の位置によらず、つねに正立で縮小した虚像ができる。",
+  210 : "凹レンズは焦点距離を負として扱うため、写像公式は \\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\) となる。\\(a&gt;0\\) ならつねに \\(b&lt;0\\) となり、虚像しかできないことが式からも確かめられる。",
+  211 : "凹面鏡は光を集めるはたらきをもち、凸レンズと同じように、物体が焦点の外側なら実像、内側なら虚像ができる。天体望遠鏡の主鏡や化粧鏡に使われる。",
+  212 : "凸面鏡は光を発散させるため、凹レンズと同じくつねに正立・縮小の虚像しかできない。視野が広くなるので、カーブミラーや車のサイドミラーに使われる。",
+  213 : "凹面鏡は光を集めるので焦点距離を正として扱い、写像公式は \\(\\dfrac{1}{a}+\\dfrac{1}{b}=\\dfrac{1}{f}\\) となる。凸レンズと同じ形である。",
+  214 : "凸面鏡は光を発散させるので焦点距離を負として扱い、写像公式は \\(\\dfrac{1}{a}+\\dfrac{1}{b}=-\\dfrac{1}{f}\\) となる。凹レンズと同じ形である。「集めるものは正、発散させるものは負」と覚えるとよい。"
+};
+
+// ============================================================
+// 状態管理
+// ============================================================
+let curSec    = 1;
+let curMode   = 'study';   // 'intro' | 'study' | 'submit'
+let orderMode = 'seq';     // 自習モードの出題順　'seq'=学習順  'rand'=ランダム
+
+const im = {          // 初学モード状態
+  secId : null,
+  idx   : 0
+};
+
+const ss = {           // 自習モード状態
+  secId    : null,
+  qs       : [],
+  idx      : 0,
+  answered : false,
+  correct  : 0,
+  wrong    : 0,
+  chosen   : []
+};
+
+const sm = {           // 送信モード状態
+  secId   : null,
+  num     : '',
+  name    : '',
+  started : false,
+  idx     : 0,
+  answered: false,
+  answers : {},
+  chosen  : []
+};
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function imgTag(q) {
+  if (!q.image) return '';
+  const list = Array.isArray(q.image) ? q.image : [q.image];
+  const cls  = q.imgSize ? 'q-img ' + q.imgSize : 'q-img';
+  const tags = list.map(src => `<img class="${cls}" src="${src}" alt="図${q.id}">`).join('');
+  return list.length > 1 ? `<div class="q-imgs">${tags}</div>` : tags;
+}
+
+function doMath(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {
+      delimiters: [
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true  }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// ============================================================
+// タブ・モード
+// ============================================================
+function buildTabs() {
+  document.getElementById('tabs').innerHTML = SECTIONS.map(s => `
+    <div class="tab ${s.id === curSec ? 'active' : ''} ${!s.available ? 'disabled' : ''}"
+         onclick="${s.available ? `setSec(${s.id})` : ''}">
+      ${s.label}
+    </div>
+  `).join('');
+}
+
+function setSec(id) {
+  curSec      = id;
+  im.secId    = null;  // セクション変更→各モードの状態をリセット
+  ss.secId    = null;
+  sm.started  = false;
+  buildTabs();
+  render();
+}
+
+function setMode(mode) {
+  curMode = mode;
+  document.getElementById('modeIntro' ).classList.toggle('active', mode === 'intro' );
+  document.getElementById('modeStudy' ).classList.toggle('active', mode === 'study' );
+  document.getElementById('modeSubmit').classList.toggle('active', mode === 'submit');
+  render();
+}
+
+// ============================================================
+// メインレンダー
+// ============================================================
+function render() {
+  const sec = SECTIONS.find(s => s.id === curSec);
+  document.getElementById('hdrSub').textContent = sec.subtitle || '';
+
+  if (!sec.available) {
+    document.getElementById('content').innerHTML = `
+      <div class="coming-card">
+        <div class="coming-icon">🔧</div>
+        <div class="coming-title">準備中</div>
+        <div class="coming-text">${sec.label} は現在準備中です。</div>
+      </div>`;
+    return;
+  }
+
+  if      (curMode === 'intro')  renderIntro(sec);
+  else if (curMode === 'study')  renderStudy(sec);
+  else                            renderSubmit(sec);
+}
+
+// ============================================================
+// 初学モード：選択肢なし、解答・解説をはじめから表示
+// ============================================================
+function renderIntro(sec) {
+  if (im.secId !== sec.id) {
+    im.secId = sec.id;
+    im.idx   = 0;
+  }
+  if (im.idx >= sec.questions.length) {
+    renderIntroDone(sec);
+    return;
+  }
+
+  const q     = sec.questions[im.idx];
+  const total = sec.questions.length;
+  const pct   = Math.round((im.idx / total) * 100);
+  const expl  = EXPLANATIONS[q.id] || '';
+
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-text">${im.idx + 1} / ${total}</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">問 ${q.id}</div>
+      ${imgTag(q)}
+      <div class="q-text">${q.text}</div>
+    </div>
+
+    <div class="intro-answer">
+      <div class="intro-answer-label">✅ 解答</div>
+      <div class="intro-answer-text">${q.choices[0]}</div>
+      <div class="intro-expl"><span class="intro-expl-icon">💡</span>${expl}</div>
+    </div>
+
+    <button class="next-btn" onclick="nextIntroQ()">
+      ${im.idx + 1 < total ? '次の問題 →' : '✅ セクション修了 →'}
+    </button>
+  `;
+
+  doMath(el);
+}
+
+function nextIntroQ() {
+  im.idx++;
+  renderIntro(SECTIONS.find(s => s.id === curSec));
+}
+
+function renderIntroDone(sec) {
+  document.getElementById('content').innerHTML = `
+    <div class="done-card">
+      <div class="done-icon">🎓</div>
+      <div class="done-title">${sec.label}（${sec.subtitle}）の学習が終わりました</div>
+      <div class="done-sub">全 ${sec.questions.length} 問を確認しました。次は自習モードで理解度を確かめましょう。</div>
+      <div class="done-actions">
+        <button class="next-btn" onclick="restartIntro()">🔄 もう一度読み直す</button>
+        <button class="next-btn" style="background:#059669;" onclick="setMode('study')">📖 自習モードへ進む</button>
+      </div>
+    </div>`;
+}
+
+function restartIntro() {
+  im.idx = 0;
+  renderIntro(SECTIONS.find(s => s.id === curSec));
+}
+
+// ============================================================
+// 自習モード（4択・即時採点）
+// ============================================================
+function setOrderMode(mode) {
+  orderMode   = mode;
+  ss.secId    = null; // 切替時に出題をリセット
+  ss.chosen   = [];
+  render();
+}
+
+function startStudy(sec) {
+  ss.secId    = sec.id;
+  ss.qs       = orderMode === 'rand'
+                  ? shuffle(sec.questions)
+                  : [...sec.questions]; // 学習順：問1から順番
+  ss.idx      = 0;
+  ss.answered = false;
+  ss.correct  = 0;
+  ss.wrong    = 0;
+  ss.chosen   = [];
+  renderStudy(sec);
+}
+
+function renderStudy(sec) {
+  if (ss.secId !== sec.id || ss.qs.length === 0) {
+    startStudy(sec);
+    return;
+  }
+  if (ss.idx >= ss.qs.length) {
+    renderResult(sec);
+    return;
+  }
+
+  const q     = ss.qs[ss.idx];
+  const total = ss.qs.length;
+  const pct   = Math.round((ss.idx / total) * 100);
+
+  if (ss.chosen.length === 0) {
+    ss.chosen = shuffle(q.choices.map((_, i) => i));
+  }
+
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="order-row">
+      <span class="order-label">出題順：</span>
+      <button class="order-btn ${orderMode === 'seq'  ? 'active' : ''}"
+              onclick="setOrderMode('seq')">学習順</button>
+      <button class="order-btn ${orderMode === 'rand' ? 'active' : ''}"
+              onclick="setOrderMode('rand')">ランダム</button>
+    </div>
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-text">${ss.idx + 1} / ${total}</div>
+    </div>
+    <div class="score-row" id="scoreRow">✅ ${ss.correct} &nbsp;❌ ${ss.wrong}</div>
+
+    <div class="q-card">
+      <div class="q-num">問 ${q.id}</div>
+      ${imgTag(q)}
+      <div class="q-text">${q.text}</div>
+    </div>
+
+    <div class="choices" id="clist">
+      ${ss.chosen.map((ci, pos) => `
+        <button class="choice-btn" id="cb${pos}" onclick="pick(${pos})"
+                ${ss.answered ? 'disabled' : ''}>
+          ${q.choices[ci]}
+        </button>`).join('')}
+    </div>
+
+    <div class="feedback" id="fb"></div>
+
+    <button class="next-btn" id="nb" onclick="nextQ()" style="display:none;">
+      ${ss.idx + 1 < total ? '次の問題 →' : '結果を見る →'}
+    </button>
+  `;
+
+  doMath(el);
+}
+
+function pick(pos) {
+  if (ss.answered) return;
+  ss.answered = true;
+
+  const q         = ss.qs[ss.idx];
+  const isCorrect = ss.chosen[pos] === 0;
+
+  if (isCorrect) ss.correct++;
+  else           ss.wrong++;
+
+  ss.chosen.forEach((ci, p) => {
+    const btn = document.getElementById(`cb${p}`);
+    if (!btn) return;
+    btn.disabled = true;
+    if (ci === 0)       btn.classList.add('correct');
+    else if (p === pos) btn.classList.add('wrong');
+  });
+
+  const fb   = document.getElementById('fb');
+  const expl = EXPLANATIONS[q.id] || '';
+  if (isCorrect) {
+    fb.className = 'feedback ok';
+    fb.innerHTML = `✅ 正解です！${expl ? `<br><span class="fb-expl">💡 ${expl}</span>` : ''}`;
+  } else {
+    fb.className = 'feedback ng';
+    fb.innerHTML = `❌ 不正解。正解は「${q.choices[0]}」です。${expl ? `<br><span class="fb-expl">💡 ${expl}</span>` : ''}`;
+  }
+  doMath(fb);
+
+  document.getElementById('scoreRow').innerHTML = `✅ ${ss.correct} &nbsp;❌ ${ss.wrong}`;
+  document.getElementById('nb').style.display = 'block';
+}
+
+function nextQ() {
+  ss.idx++;
+  ss.answered = false;
+  ss.chosen   = [];
+  renderStudy(SECTIONS.find(s => s.id === curSec));
+}
+
+function renderResult(sec) {
+  const total = ss.qs.length;
+  const c     = ss.correct;
+  const pct   = Math.round((c / total) * 100);
+  const emoji = pct >= 90 ? '🎉' : pct >= 70 ? '👍' : pct >= 50 ? '🤔' : '😢';
+
+  document.getElementById('content').innerHTML = `
+    <div class="result-card">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-score">${c}</div>
+      <div class="result-total">/ ${total} 問正解</div>
+      <div class="result-pct">正答率 ${pct}%</div>
+      <div class="result-actions">
+        <button class="retry-btn"
+                onclick="startStudy(SECTIONS.find(s=>s.id===${curSec}))">
+          🔄 もう一度やり直す
+        </button>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// 送信モード
+// ============================================================
+function renderSubmit(sec) {
+  if (sm.secId !== sec.id || !sm.started) {
+    renderSubmitIntro(sec);
+    return;
+  }
+  if (sm.idx >= sec.questions.length) {
+    renderSubmitFinal(sec);
+    return;
+  }
+  renderSubmitQuestion(sec);
+}
+
+/* ── 氏名入力画面 ── */
+function renderSubmitIntro(sec) {
+  document.getElementById('content').innerHTML = `
+    <div class="name-card">
+      <label class="name-label" for="snum">組番号を入力してください</label>
+      <input type="text" class="name-input" id="snum"
+             placeholder="例：A01～E40"
+             value="${sm.secId === sec.id ? sm.num : ''}">
+    </div>
+    <div class="name-card">
+      <label class="name-label" for="sname">氏名を入力してください</label>
+      <input type="text" class="name-input" id="sname"
+             placeholder="例：湘南 太郎"
+             value="${sm.secId === sec.id ? sm.name : ''}">
+    </div>
+    <button class="sm-start-btn" onclick="startSubmitQuiz(${sec.id})">
+      ✏️ 回答を開始する（全 ${sec.questions.length} 問）
+    </button>`;
+}
+
+function startSubmitQuiz(secId) {
+  const num  = document.getElementById('snum').value.trim();
+  const name = document.getElementById('sname').value.trim();
+  if (!num)  { alert('組番号を入力してください。'); return; }
+  if (!name) { alert('氏名を入力してください。');   return; }
+  sm.secId    = secId;
+  sm.num      = num;
+  sm.name     = name;
+  sm.started  = true;
+  sm.startedAt = Date.now();   // 所要時間の計測用
+  sm.idx      = 0;
+  sm.answered = false;
+  sm.answers  = {};
+  sm.chosen   = [];
+  renderSubmit(SECTIONS.find(s => s.id === secId));
+}
+
+/* ── 一問表示 ── */
+function renderSubmitQuestion(sec) {
+  const q     = sec.questions[sm.idx];
+  const total = sec.questions.length;
+  const pct   = Math.round((sm.idx / total) * 100);
+
+  if (sm.chosen.length === 0) {
+    sm.chosen = shuffle(q.choices.map((_, i) => i));
+  }
+
+  const expl       = EXPLANATIONS[q.id] || '';
+  const selectedCi = sm.answers[q.id];
+
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-text">${sm.idx + 1} / ${total}</div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">問 ${q.id}</div>
+      ${imgTag(q)}
+      <div class="q-text">${q.text}</div>
+    </div>
+
+    <div class="choices">
+      ${sm.chosen.map((ci, pos) => {
+        let cls = '';
+        if (sm.answered) {
+          if (ci === 0)                           cls = 'correct';
+          else if (ci === selectedCi && ci !== 0) cls = 'wrong';
+        }
+        return `
+          <button class="choice-btn ${cls}" id="smcb${pos}"
+                  onclick="pickSubmit(${pos})"
+                  ${sm.answered ? 'disabled' : ''}>
+            ${q.choices[ci]}
+          </button>`;
+      }).join('')}
+    </div>
+
+    ${sm.answered ? `
+      <div class="sm-explanation">
+        <span class="sm-expl-icon">💡</span>
+        <span>${expl}</span>
+      </div>
+      <button class="next-btn" onclick="nextSubmitQ()">
+        ${sm.idx + 1 < total ? '次の問題 →' : '✅ 送信画面へ →'}
+      </button>
+    ` : ''}
+  `;
+
+  doMath(el);
+}
+
+function pickSubmit(pos) {
+  if (sm.answered) return;
+  sm.answered = true;
+  const sec = SECTIONS.find(s => s.id === sm.secId);
+  const q   = sec.questions[sm.idx];
+  sm.answers[q.id] = sm.chosen[pos];
+  renderSubmitQuestion(sec);
+}
+
+function nextSubmitQ() {
+  sm.idx++;
+  sm.answered = false;
+  sm.chosen   = [];
+  renderSubmit(SECTIONS.find(s => s.id === sm.secId));
+}
+
+/* ── 送信確認画面 ── */
+function renderSubmitFinal(sec) {
+  document.getElementById('content').innerHTML = `
+    <div class="sm-final-card">
+      <div class="sm-final-icon">📝</div>
+      <div class="sm-final-title">全 ${sec.questions.length} 問の回答が完了しました</div>
+      <div class="sm-final-name">${sm.name} さん</div>
+      <button class="submit-btn" id="sbtn" onclick="doSubmit(${sec.id})">
+        📤 回答を送信する
+      </button>
+      <div id="sresult"></div>
+    </div>`;
+}
+
+// ============================================================
+//  記録送信（学習記録ハブ  スキーマ v1）
+// ============================================================
+// ハブGASのデプロイURL
+const HUB_URL = 'https://script.google.com/macros/s/AKfycbwnV8z1aoFsLF0NEEgFXZEVktKKNVqm8Fnvrm4Z772M1df-VZKJRAljAZBHgRkInIVX/exec';
+
+// 単元マスタ.xlsx「アプリ設定」シートの light の行から転記
+const APP_ID  = 'light';
+const UNIT_ID = 'WAV02';
+// ★配列の並びはタブ（①光波の基本 〜 ⑧レンズと鏡）の並びと一致させること
+const SEC_IDS = ['WAV02-S1', 'WAV02-S2', 'WAV02-S3', 'WAV02-S4',
+                 'WAV02-S5', 'WAV02-S6', 'WAV02-S7', 'WAV02-S8'];
+
+// 移行期のみ true。旧スプレッドシートにも同じ内容を送る。
+// ハブ側で記録できていることを確認したら false にする。
+const SEND_LEGACY = true;
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby31JP-Z2FqKUBFpE0oO4HDGI45ZhyyzxncIDkY2hCHj774JPCRq243o54HGpGUgO3I1A/exec';
+
+let _sub = null;   // 直前の送信内容（結果表示用）
+
+/* このアプリは sm.answers[問題ID] に「選んだ選択肢の元index」を持ち、0 が正解 */
+function isCorrect_(qid) { return sm.answers[qid] === 0; }
+
+function doSubmit(secId) {
+  const sec     = SECTIONS.find(s => s.id === secId);
+  const qids    = sec.questions.map(q => q.id);
+  const correct = qids.filter(isCorrect_).length;
+  const elapsed = sm.startedAt ? Math.round((Date.now() - sm.startedAt) / 1000) : 0;
+
+  _sub = { num: sm.num, name: sm.name, correct, total: qids.length };
+
+  if (!HUB_URL && !(SEND_LEGACY && GAS_URL)) {
+    document.getElementById('sresult').innerHTML = `
+      <div class="sub-result warn">
+        ⚠️ 送信先が未設定です。<br>
+        <strong>${sm.num}　${sm.name}</strong> さんの得点：<strong>${correct} / ${_sub.total}</strong>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+        <button class="next-btn" onclick="setMode('study')">📖 自習モードで学習する</button>
+      </div>`;
+    return;
+  }
+
+  const btn = document.getElementById('sbtn');
+  if (btn) { btn.disabled = true; btn.textContent = '📤 送信中…'; }
+
+  sendRecord(sec, qids, correct, elapsed).then(ok => showSubmitResult(ok, btn));
+}
+
+/* ── ハブ（＋移行期は旧GAS）へ送信 ── */
+async function sendRecord(sec, qids, correct, elapsed) {
+  const marks = qids.map(id => (isCorrect_(id) ? '1' : '0')).join('');
+  let ok = null;
+
+  if (HUB_URL) {
+    const secId = SEC_IDS[sec.id - 1];
+    if (!secId) {
+      console.error('SEC_IDS に ' + sec.label + ' の定義がありません');
+    } else {
+      const p = new URLSearchParams();
+      p.set('v',       '1');
+      p.set('app',     APP_ID);
+      p.set('unit',    UNIT_ID);
+      p.set('sec',     secId);          // ★恒久ID。単元マスタとの結合キー
+      p.set('section', sec.label);      // 保険（マスタ側の名前が優先される）
+      p.set('cls',     sm.num);         // 組番号 → 名簿で生徒IDに解決される
+      p.set('name',    sm.name);
+      p.set('mode',    '送信');
+      p.set('qids',    qids.join(','));
+      p.set('marks',   marks);          // 例 "1011…"（○×より遥かに短い）
+      p.set('elapsed', String(elapsed));
+      p.set('comment', '');
+      ok = await beacon(HUB_URL + '?' + p.toString());
+    }
+  }
+
+  if (SEND_LEGACY && GAS_URL) {
+    const q = new URLSearchParams({
+      num      : sm.num,
+      name     : sm.name,
+      section  : sec.label,
+      correct  : String(correct),
+      total    : String(qids.length),
+      qids     : qids.join(','),
+      timestamp: new Date().toLocaleString('ja-JP')
+    });
+    qids.forEach(id => q.append('q' + id, isCorrect_(id) ? '○' : '×'));
+    const ok2 = await beacon(GAS_URL + '?' + q.toString());
+    if (ok === null) ok = ok2;
+  }
+
+  return ok === true;
+}
+
+/* ── 画像ビーコン方式（CSP・CORSの影響を受けにくい）／最大3回試行 ── */
+function beacon(url) {
+  const MAX_RETRY = 3;
+  return (async () => {
+    for (let i = 0; i < MAX_RETRY; i++) {
+      const btn = document.getElementById('sbtn');
+      if (btn && i > 0) btn.textContent = `🔄 再送信中… (${i + 1}/${MAX_RETRY})`;
+      const reached = await new Promise(resolve => {
+        const img   = new Image();
+        const timer = setTimeout(() => resolve(false), 6000);
+        img.onload  = () => { clearTimeout(timer); resolve(true); };
+        img.onerror = () => { clearTimeout(timer); resolve(true); };  // 到達はしている
+        img.src = url;
+      });
+      if (reached) return true;
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    return false;
+  })();
+}
+
+/* ── 結果表示 ── */
+function showSubmitResult(ok, btn) {
+  const { num, name, correct, total } = _sub;
+  const el = document.getElementById('sresult');
+  if (!el) return;
+
+  if (ok) {
+    el.innerHTML = `
+      <div class="sub-result ok">
+        ✅ 送信完了しました。お疲れ様でした！<br>
+        <strong>${num}　${name}</strong> さんの得点：<strong>${correct} / ${total}</strong>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+        <button class="next-btn" onclick="setMode('study')">📖 自習モードで学習する</button>
+        <button class="next-btn" style="background:#059669;"
+                onclick="sm.started=false; setMode('submit')">📤 送信モードでもう一度</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="sub-result warn">
+        ❌ 送信に失敗しました。ネットワークを確認してもう一度お試しください。<br>
+        <strong>${num}　${name}</strong> さんの得点：<strong>${correct} / ${total}</strong>
+      </div>`;
+    if (btn) { btn.disabled = false; btn.textContent = '📤 もう一度送信する'; }
+  }
+}
+
+// ============================================================
+// 初期化
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  buildTabs();
+  document.getElementById('modeStudy').classList.add('active');
+  render();
+});
+</script>
+</body>
+</html>
