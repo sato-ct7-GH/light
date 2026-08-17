@@ -1655,5 +1655,35 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
 });
 </script>
+  <!-- ▼▼ ポータルへ戻るボタン（</body> の直前に貼る） ▼▼ -->
+<style>
+  .portal-home{
+    position:fixed; right:14px; z-index:900;
+    bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+    display:flex; align-items:center; gap:6px;
+    padding:9px 15px 9px 12px;
+    background:#1a3a6a; color:#fff; text-decoration:none;
+    border-radius:999px; font-size:13px; font-weight:600;
+    font-family:'Noto Sans JP',sans-serif; letter-spacing:.03em;
+    box-shadow:0 3px 12px rgba(20,32,58,.32);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .portal-home:active{ transform:translateY(1px); background:#14315a; }
+  .portal-home svg{ width:15px; height:15px; flex:0 0 auto; }
+  /* ボタンが最後の要素に重ならないよう、下の余白を広げる */
+  .main{ padding-bottom:110px !important; }
+  @media (max-width:380px){
+    .portal-home{ padding:8px 12px 8px 10px; font-size:12px; }
+  }
+</style>
+
+<a class="portal-home" href="https://sato-ct7-gh.github.io/ShonanPhysicsPortal/" title="物理ポータルへ戻る">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
+  </svg>
+  ポータル
+</a>
+<!-- ▲▲ ここまで ▲▲ -->
 </body>
 </html>
